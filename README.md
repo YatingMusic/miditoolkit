@@ -2,22 +2,22 @@
 
 A python package for working with MIDI data. 
 
-The usage is similar to [pretty_midi](https://github.com/craffel/pretty-midi), while this toolkit handling midi events in [symbolic timing](https://mido.readthedocs.io/en/latest/midi_files.html#about-the-time-attribute) (**ticks**, instead of seconds). Furthermore, the toolkit can parse midi tracks into **piano-rolls** for computation or visualization purposes.
+The usage is similar to [pretty_midi](https://github.com/craffel/pretty-midi), while this toolkit handles MIDI events in [symbolic timing](https://mido.readthedocs.io/en/latest/midi_files.html#about-the-time-attribute) (**ticks**, instead of seconds). Furthermore, the toolkit can parse MIDI  tracks into **piano-rolls** for computation or visualization purposes.
 
 ## Main Features
-* midi events
-    * global
+* MIDI attributes
+    * Global
         * ticks per beats
         * tempo changes
         * key signatures
-        * time signature
+        * time signatures
         * lyrics
         * makers
-    * instruments
+    * Instruments
         * control changes
         * pitch bend
-* piano-rolls    
-    * tools
+* Piano-rolls    
+    * Tools
         * notes to piano-rolls
         * piano-rolls to notes
         * chromagram
@@ -54,10 +54,44 @@ print(mido_obj.time_signature_changes)
 print('time signatures:')
 print(mido_obj.time_signature_changes)
 
+# tempo changes
+
+# markers
+
+# instruments
+
+# convert to seconds
+
 ```
 
 ### Ceate an empty MIDI File
+```python
+from miditoolkit.midi import parser as mid_parser 
+from miditoolkit.midi import containers as ct
+
+midi_obj = mid_parser.MidiFile()
+
+
+```
+
+### Create a piano-roll
+```python
+from miditoolkit.midi import parser as mid_parser 
+from miditoolkit.pianoroll import parser as pr_parser 
+
+
+```
 
 ## Visualization
 
+```python
+```
+
 ## Philosophy
+
+* [pretty_midi](https://github.com/craffel/pretty-midi) parses midi events in seconds. 
+* [pypianoroll](https://github.com/salu133445/pypianoroll) parses MIDI files into pianorolls.
+* [mido](https://github.com/mido/mido) 
+messages and ports
+
+Miditoolkit is design for
