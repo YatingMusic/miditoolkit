@@ -30,11 +30,11 @@ pip install miditoolkit
 ```
 
 ## Quick Start
-* Parse a MIDI file
-* Ceate an empty MIDI File
-* Create a piano-roll and visualize it
+* A. Parse a MIDI file
+* B. Ceate an empty MIDI File
+* C. Create a piano-roll and visualize it
 
-### Parse a MIDI file
+#### A. Parse a MIDI file
 ```python
 
 from miditoolkit.midi import parser as mid_parser 
@@ -64,7 +64,7 @@ print(mido_obj.time_signature_changes)
 
 ```
 
-### Ceate an empty MIDI File
+#### B. Ceate an empty MIDI File
 ```python
 from miditoolkit.midi import parser as mid_parser 
 from miditoolkit.midi import containers as ct
@@ -74,14 +74,13 @@ midi_obj = mid_parser.MidiFile()
 
 ```
 
-### Create a piano-roll
+#### C. Create a piano-roll
 ```python
 from miditoolkit.midi import parser as mid_parser 
 from miditoolkit.pianoroll import parser as pr_parser 
 
 
 ```
-
 ## Visualization
 
 ```python
