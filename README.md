@@ -34,7 +34,7 @@ pip install miditoolkit
 * B. Ceate an empty MIDI File
 * C. Create a piano-roll and visualize it
 
-#### A. Parse a MIDI file
+### A. Parse a MIDI file
 ```python
 
 from miditoolkit.midi import parser as mid_parser 
@@ -64,7 +64,7 @@ print(mido_obj.time_signature_changes)
 
 ```
 
-#### B. Ceate an empty MIDI File
+### B. Ceate an empty MIDI File
 ```python
 from miditoolkit.midi import parser as mid_parser 
 from miditoolkit.midi import containers as ct
@@ -74,7 +74,7 @@ midi_obj = mid_parser.MidiFile()
 
 ```
 
-#### C. Create a piano-roll
+### C. Create a piano-roll
 ```python
 from miditoolkit.midi import parser as mid_parser 
 from miditoolkit.pianoroll import parser as pr_parser 
@@ -92,7 +92,7 @@ from miditoolkit.pianoroll import parser as pr_parser
 * [pypianoroll](https://github.com/salu133445/pypianoroll) can parse MIDI files into pianorolls in symbolic timing (through beat resolution).
 * [mido](https://github.com/mido/mido) processes MIDI files in the lower level such as messages and ports.
 
-**Miditoolkit** is designed for handling MIDI in **symbolic timing** (ticks), which is the native format of MIDI timing. We keep the midi parser as simple as possible, and offer several important functions to complete the versatility.
+**Miditoolkit** is designed for handling MIDI in **symbolic timing** (ticks), which is the native format of MIDI timing. We keep the midi parser as simple as possible, and offer several important functions to complete the versatility. For example, piano-rolls, tick-to-second, chromagram, and etc.
 
 To customize settings and maximum the degree of freedom, users can achieve that by using additional libraries like visualization, which is excluded in the toolkit. 
 
