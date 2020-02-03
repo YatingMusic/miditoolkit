@@ -89,9 +89,12 @@ from miditoolkit.pianoroll import parser as pr_parser
 
 ## Philosophy
 
-* [pretty_midi](https://github.com/craffel/pretty-midi) parses midi events in seconds. 
-* [pypianoroll](https://github.com/salu133445/pypianoroll) parses MIDI files into pianorolls.
-* [mido](https://github.com/mido/mido) 
-messages and ports
+* [pretty_midi](https://github.com/craffel/pretty-midi) can parse MIDI files and generate pianorolls in absolute timing (seconds).
+* [pypianoroll](https://github.com/salu133445/pypianoroll) can parse MIDI files into pianorolls in symbolic timing (through beat resolution).
+* [mido](https://github.com/mido/mido) process MIDI files in the lower level such as messages and ports.
 
-Miditoolkit is design for
+Miditoolkit is designed for handling MIDI in **symbolic timing** (ticks), which is the native format of MIDI timing. We keep the midi parser as simple as possible, and offer several important functions to complete the versatility.
+
+To customized settings, users can achieve that by using additional libraries like visualization, which is excluded in the toolkit.
+
+
