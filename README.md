@@ -64,7 +64,7 @@ print(mido_obj.time_signature_changes)
 
 ```
 
-### B. Ceate an empty MIDI File
+### B. Ceate an empty MIDI file
 ```python
 from miditoolkit.midi import parser as mid_parser 
 from miditoolkit.midi import containers as ct
@@ -81,6 +81,12 @@ from miditoolkit.pianoroll import parser as pr_parser
 
 
 ```
+
+### D. Crop MIDI segment
+```python
+
+```
+
 ## Visualization
 
 ```python
