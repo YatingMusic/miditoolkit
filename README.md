@@ -95,6 +95,6 @@ from miditoolkit.pianoroll import parser as pr_parser
 
 Miditoolkit is designed for handling MIDI in **symbolic timing** (ticks), which is the native format of MIDI timing. We keep the midi parser as simple as possible, and offer several important functions to complete the versatility.
 
-To customized settings, users can achieve that by using additional libraries like visualization, which is excluded in the toolkit.
+To customized settings and maximum the degree of freedom, users can achieve that by using additional libraries like visualization, which is excluded in the toolkit. 
 
 
