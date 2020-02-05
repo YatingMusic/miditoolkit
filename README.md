@@ -29,43 +29,11 @@ Install the miditoolkit via [PYPI](https://pypi.org/project/miditoolkit/):
 pip install miditoolkit
 ```
 
-## Quick Start
+## Example Usage
 
-A. Parse a MIDI file  
-B. Ceate an empty MIDI File  
-C. Create a piano-roll and visualize it  
+A. [Parse and create MIDI files](examples/parse_and_create_MIDI_files.ipynb)  
+B. [Piano-roll Manipulation](examples/pinoroll_manipulation.ipynb)
 
-### B. Ceate an empty MIDI file
-```python
-from miditoolkit.midi import parser as mid_parser 
-from miditoolkit.midi import containers as ct
-
-midi_obj = mid_parser.MidiFile()
-
-
-```
-
-```bash
-
-```
-
-### C. Create a piano-roll
-```python
-from miditoolkit.midi import parser as mid_parser 
-
-
-
-```
-
-### D. Crop MIDI segment
-```python
-
-```
-
-## Visualization
-
-```python
-```
 
 ## Philosophy
 * [pretty_midi](https://github.com/craffel/pretty-midi) can parse MIDI files and generate pianorolls in absolute timing (seconds). 
