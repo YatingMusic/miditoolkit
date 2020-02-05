@@ -5,7 +5,7 @@ A python package for working with MIDI data.
 The usage is similar to [pretty_midi](https://github.com/craffel/pretty-midi), while miditoolkit handles MIDI events in [symbolic timing](https://mido.readthedocs.io/en/latest/midi_files.html#about-the-time-attribute) (**ticks**, instead of seconds). Furthermore, the toolkit can parse MIDI  tracks into **piano-rolls** for computation or visualization purposes.
 
 ## Main Features
-* MIDI attributes
+* MIDI
     * Global
         * ticks per beat
         * tempo changes
@@ -16,6 +16,8 @@ The usage is similar to [pretty_midi](https://github.com/craffel/pretty-midi), w
     * Instruments
         * control changes
         * pitch bend
+    * Editing
+        * cropping
 * Piano-rolls    
     * Tools
         * notes to piano-rolls
