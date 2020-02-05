@@ -12,10 +12,10 @@ DEFAULT_BPM = int(120)
 
 
 class MidiFile(object):
-    def __init__(self, midi_file=None, mode='tick'):
+    def __init__(self, midi_file=None, ticks_per_beat=480):
         # create empty file
         if midi_file is None:
-            self.ticks_per_beat = 480
+            self.ticks_per_beat = ticks_per_beat 
             self.max_tick = 0
             self.tempo_changes = []
             self.time_signature_changes = []
@@ -309,7 +309,7 @@ class MidiFile(object):
             "key sig: {}".format(self.key_signature_changes),
             'markers: {}'.format(self.markers),
             "lyrics: {}".format(bool(len(self.lyrics))),
-            "instruments: {}".format(len( self.instruments))
+            "instruments: {}".format(len(self.instruments))
         ] 
         output_str = "\n".join(output_list)
         return output_str

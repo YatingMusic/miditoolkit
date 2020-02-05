@@ -15,7 +15,7 @@ PITCH_RANGE = 128
 #     pass
 
 
-def get_pianoroll(
+def notes2pianoroll(
         note_stream_ori, 
         ticks_per_beat=480, 
         downbeat=None, 
@@ -80,7 +80,7 @@ def get_pianoroll(
     return pianoroll      
 
 
-def convert_pianoroll_to_notes(
+def pianoroll2notes(
         pianoroll,
         resample_factor=1.0):
 
