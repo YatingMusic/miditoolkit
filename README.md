@@ -27,8 +27,8 @@ The usage is similar to [pretty_midi](https://github.com/craffel/pretty-midi), w
 
 ## Installation
 * current version: 0.1.8  
-* python 2 is not supported
-Install the miditoolkit via [PYPI](https://pypi.org/project/miditoolkit/):
+* **python 2 is not supported**   
+* Install the miditoolkit via [PYPI](https://pypi.org/project/miditoolkit/):
 ```bash
 pip install miditoolkit
 ```
