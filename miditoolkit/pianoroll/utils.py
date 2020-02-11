@@ -1,7 +1,4 @@
 import numpy as np
-from sklearn.neighbors import NearestNeighbors
-from sklearn.metrics import pairwise_distances
-from scipy import signal
 
 
 def downsample(pianoroll, ori_resol, factor):
