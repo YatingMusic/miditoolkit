@@ -26,6 +26,7 @@ The usage is similar to [pretty_midi](https://github.com/craffel/pretty-midi), w
     * Visualization
 
 ## Installation
+current version: 0.1.8  
 Install the miditoolkit via [PYPI](https://pypi.org/project/miditoolkit/):
 ```bash
 pip install miditoolkit
