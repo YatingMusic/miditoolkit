@@ -18,6 +18,8 @@ The usage is similar to [pretty_midi](https://github.com/craffel/pretty-midi), w
         * pitch bend
     * Editing
         * cropping
+    * IO
+        * BytesIO
 * Piano-rolls    
     * Tools
         * notes to piano-rolls

@@ -12,9 +12,9 @@ DEFAULT_BPM = int(120)
 
 
 class MidiFile(object):
-    def __init__(self, midi_file=None, ticks_per_beat=480):
+    def __init__(self, filename=None, file=None, ticks_per_beat=480):
         # create empty file
-        if midi_file is None:
+        if (filename is None and file is None):
             self.ticks_per_beat = ticks_per_beat 
             self.max_tick = 0
             self.tempo_changes = []
@@ -26,11 +26,12 @@ class MidiFile(object):
         
         # load
         else:
-            if isinstance(midi_file, str):
+            if filename:
                 # filename
-                mido_obj = mido.MidiFile(filename=midi_file)
+                mido_obj = mido.MidiFile(filename=filename)
             else:
-                raise ValueError('[!] Invalid file name')
+                mido_obj = mido.MidiFile(file=file)
+            
 
             # ticks_per_beat
             self.ticks_per_beat = mido_obj.ticks_per_beat
@@ -314,7 +315,13 @@ class MidiFile(object):
         output_str = "\n".join(output_list)
         return output_str
 
-    def dump(self, filename, segment=None, shift=True, instrument_idx=None):
+    def dump(self, 
+             filename=None, 
+             file=None, 
+             segment=None, 
+             shift=True, 
+             instrument_idx=None):
+
         # comparison function
         def event_compare(event1, event2):
             secondary_sort = {
@@ -338,6 +345,10 @@ class MidiFile(object):
                 return (secondary_sort[event1.type](event1) -
                         secondary_sort[event2.type](event2))
             return event1.time - event2.time
+
+        if (filename is None) and (file is None):
+            raise IOError('please specify the output.')
+
         if instrument_idx is None:
             pass
         elif len(instrument_idx)==0:
@@ -543,7 +554,10 @@ class MidiFile(object):
                 tick += event.time
 
         # Write it out
-        midi_parsed.save(filename=filename)
+        if filename:
+            midi_parsed.save(filename=filename)
+        else:
+            midi_parsed.save(file=file)
 
 
 def _check_note_within_range(note, st, ed, shift=True):
