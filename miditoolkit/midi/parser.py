@@ -305,10 +305,10 @@ class MidiFile(object):
         output_list = [
             "ticks per beat: {}".format(self.ticks_per_beat),
             "max tick: {}".format(self.max_tick),
-            "tempo changes: {}".format(self.tempo_changes),
-            "time sig: {}".format(self.time_signature_changes),
-            "key sig: {}".format(self.key_signature_changes),
-            'markers: {}'.format(self.markers),
+            "tempo changes: {}".format(len(self.tempo_changes)),
+            "time sig: {}".format(len(self.time_signature_changes)),
+            "key sig: {}".format(len(self.key_signature_changes)),
+            'markers: {}'.format(len(self.markers)),
             "lyrics: {}".format(bool(len(self.lyrics))),
             "instruments: {}".format(len(self.instruments))
         ] 
