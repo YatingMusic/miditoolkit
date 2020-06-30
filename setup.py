@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='miditoolkit',
-    version='0.1.9',
+    version='0.1.10',
     description='',
     author='Colin Raffel',
     author_email='s101062219@gmail.com',
