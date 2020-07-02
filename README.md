@@ -26,6 +26,9 @@ The usage is similar to [pretty_midi](https://github.com/craffel/pretty-midi), w
         * piano-rolls to notes
         * chromagram
     * Visualization
+    
+* External Library
+   * [structure analysis](https://github.com/wayne391/sf_segmenter)
 
 ## Installation
 * current version: 0.1.14
