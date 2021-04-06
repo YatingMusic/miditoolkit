@@ -17,7 +17,7 @@ The usage is similar to [pretty_midi](https://github.com/craffel/pretty-midi), w
         * control changes
         * pitch bend
     * Editing
-        * cropping
+        * chunk/cropping
     * IO
         * BytesIO
 * Piano-rolls    
