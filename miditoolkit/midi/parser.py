@@ -12,7 +12,7 @@ DEFAULT_BPM = int(120)
 
 
 class MidiFile(object):
-    def __init__(self, filename=None, file=None, ticks_per_beat=480):
+    def __init__(self, filename=None, file=None, ticks_per_beat=480, clip=False):
         # create empty file
         if (filename is None and file is None):
             self.ticks_per_beat = ticks_per_beat 
@@ -28,9 +28,9 @@ class MidiFile(object):
         else:
             if filename:
                 # filename
-                mido_obj = mido.MidiFile(filename=filename)
+                mido_obj = mido.MidiFile(filename=filename, clip=clip)
             else:
-                mido_obj = mido.MidiFile(file=file)
+                mido_obj = mido.MidiFile(file=file, clip=clip)
             
 
             # ticks_per_beat
