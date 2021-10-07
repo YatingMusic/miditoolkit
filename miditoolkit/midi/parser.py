@@ -12,7 +12,7 @@ DEFAULT_BPM = int(120)
 
 
 class MidiFile(object):
-    def __init__(self, filename=None, file=None, ticks_per_beat=480):
+    def __init__(self, filename=None, file=None, ticks_per_beat=480, charset ='latin1'):
         # create empty file
         if (filename is None and file is None):
             self.ticks_per_beat = ticks_per_beat 
@@ -28,9 +28,9 @@ class MidiFile(object):
         else:
             if filename:
                 # filename
-                mido_obj = mido.MidiFile(filename=filename)
+                mido_obj = mido.MidiFile(filename=filename, charset=charset)
             else:
-                mido_obj = mido.MidiFile(file=file)
+                mido_obj = mido.MidiFile(file=file, charset=charset)
             
 
             # ticks_per_beat
@@ -320,7 +320,8 @@ class MidiFile(object):
              file=None, 
              segment=None, 
              shift=True, 
-             instrument_idx=None):
+             instrument_idx=None,
+             charset ='latin1'):
 
         # comparison function
         def event_compare(event1, event2):
@@ -368,7 +369,7 @@ class MidiFile(object):
             end_tick= segment[1]
 
         # Create file
-        midi_parsed = mido.MidiFile(ticks_per_beat=self.ticks_per_beat)
+        midi_parsed = mido.MidiFile(ticks_per_beat=self.ticks_per_beat, charset=charset)
 
         # Create track 0 with timing information
         meta_track = mido.MidiTrack()
