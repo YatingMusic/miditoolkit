@@ -31,6 +31,25 @@ class Note(object):
         return 'Note(start={:d}, end={:d}, pitch={}, velocity={})'.format(
             self.start, self.end, self.pitch, self.velocity)
 
+class Pedal(object):
+    """A pedal event.
+
+    Parameters
+    ----------
+    start : float
+        Time where the pedal starts.
+    end : float
+        Time where the pedal ends.
+
+    """
+    def __init__(self, start, end):
+        self.start = start
+        self.end = end
+        self.duration = end-start
+        
+    def __repr__(self):
+        return 'Pedal(start={:d}, end={:d})'.format(
+            self.start, self.end)
 
 class PitchBend(object):
     """A pitch bend event.
@@ -69,11 +88,10 @@ class ControlChange(object):
     def __init__(self, number, value, time):
         self.number = number
         self.value = value
-        self.time = time
+        self.time = time        
 
     def __repr__(self):
-        return ('ControlChange(number={:d}, value={:d}, '
-                'time={:d})'.format(self.number, self.value, self.time))
+        return ('ControlChange(number={:d}, value={:d}, time={:d})'.format(self.number, self.value, self.time))
 
 
 class TimeSignature(object):
@@ -279,6 +297,7 @@ class Instrument(object):
         self.notes = []
         self.pitch_bends = []
         self.control_changes = []
+        self.pedals = []
 
     def remove_invalid_notes(self, verbose=True):
         """Removes any notes whose end time is before or at their start time.
@@ -305,7 +324,7 @@ class Instrument(object):
     def __repr__(self):
         return 'Instrument(program={}, is_drum={}, name="{}")'.format(
             self.program, self.is_drum, self.name.replace('"', r'\"'))
-
+    
 
 def _key_name_to_key_number(key_string):
     # Create lists of possible mode names (major or minor)
