@@ -31,7 +31,7 @@ The usage is similar to [pretty_midi](https://github.com/craffel/pretty-midi), w
    * [structure analysis](https://github.com/wayne391/sf_segmenter)
 
 ## Installation
-* current version: 0.1.14
+* current version: 0.1.15
 * **python 2 is not supported**   
 * Install the miditoolkit via [PYPI](https://pypi.org/project/miditoolkit/):
 ```bash
