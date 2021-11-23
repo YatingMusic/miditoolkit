@@ -621,7 +621,6 @@ class MidiFile(object):
 
         # Write it out
         if filename:
-            print(filename)
             midi_parsed.save(filename=filename)
         else:
             midi_parsed.save(file=file)
