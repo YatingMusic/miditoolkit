@@ -430,12 +430,11 @@ class MidiFile(object):
 
         # - add each
         for t in self.tempo_changes:
-            t.tempo = mido.bpm2tempo(t.tempo)
             tempo_list.append(
                 mido.MetaMessage(
                     'set_tempo',
                     time=t.time,
-                    tempo=int(t.tempo)))
+                    tempo=mido.bpm2tempo(t.tempo)))
         
         # 3. Lyrics
         lyrics_list = []
