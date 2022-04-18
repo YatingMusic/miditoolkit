@@ -1,0 +1,14 @@
+Metadata-Version: 1.1
+Name: miditoolkit
+Version: 0.1.16
+Summary: UNKNOWN
+Home-page: https://github.com/YatingMusic/miditoolkit
+Author: wayne391
+Author-email: s101062219@gmail.com
+License: MIT
+Description: UNKNOWN
+Keywords: music midi mir
+Platform: UNKNOWN
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python
+Classifier: Topic :: Multimedia :: Sound/Audio :: MIDI
