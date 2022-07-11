@@ -227,21 +227,18 @@ class MidiFile(object):
                     if key in last_note_on:
                         # Get the start/stop times and velocity of every note
                         # which was turned on with this instrument/drum/pitch.
-                        # One note-off may close multiple note-on events from
-                        # previous ticks. In case there's a note-off and then
-                        # note-on at the same tick we keep the open note from
-                        # this tick.
+                        # Since mido makes (note on - note off) pair for a note,
+                        # one note-off close one note-on in FIFO method.
                         end_tick = event.time
                         open_notes = last_note_on[key]
 
                         notes_to_close = [
-                            (start_tick, velocity)
-                            for start_tick, velocity in open_notes
-                            if start_tick != end_tick]
+                            open_notes[0]
+                        ]
                         notes_to_keep = [
                             (start_tick, velocity)
-                            for start_tick, velocity in open_notes
-                            if start_tick == end_tick]
+                            for start_tick, velocity in open_notes[1:]
+                        ]
 
                         for start_tick, velocity in notes_to_close:
                             start_time = start_tick
