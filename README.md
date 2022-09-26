@@ -33,6 +33,7 @@ The usage is similar to [pretty_midi](https://github.com/craffel/pretty-midi), w
    * [structure analysis](https://github.com/wayne391/sf_segmenter)
    
 ## TODO
+* better documentation
 * absolute timing
 * cropping: Control Changes
 * cropping: bars
