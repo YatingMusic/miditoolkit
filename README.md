@@ -29,9 +29,15 @@ The usage is similar to [pretty_midi](https://github.com/craffel/pretty-midi), w
         * piano-rolls to notes
         * chromagram
     * Visualization
-    
 * External Library
    * [structure analysis](https://github.com/wayne391/sf_segmenter)
+   
+## TODO
+* absolute timing
+* cropping: Control Changes
+* cropping: bars
+* symbolic features
+* new structural analysis
 
 ## Installation
 * current version: 0.1.15
