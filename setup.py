@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='miditoolkit',
-    version='0.1.15',
+    version='0.1.16',
     description='',
     author='wayne391',
     author_email='s101062219@gmail.com',
