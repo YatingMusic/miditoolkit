@@ -28,8 +28,8 @@ class Note(object):
         return self.end - self.start
 
     def __repr__(self):
-        return 'Note(start={:d}, end={:d}, pitch={}, velocity={})'.format(
-            self.start, self.end, self.pitch, self.velocity)
+        return f'Note(start={self.start:d}, end={self.end:d}, pitch={self.pitch}, velocity={self.velocity})'
+
 
 class Pedal(object):
     """A pedal event.
@@ -42,14 +42,15 @@ class Pedal(object):
         Time where the pedal ends.
 
     """
+
     def __init__(self, start, end):
         self.start = start
         self.end = end
-        self.duration = end-start
-        
+        self.duration = end - start
+
     def __repr__(self):
-        return 'Pedal(start={:d}, end={:d})'.format(
-            self.start, self.end)
+        return f'Pedal(start={self.start:d}, end={self.end:d})'
+
 
 class PitchBend(object):
     """A pitch bend event.
@@ -68,7 +69,7 @@ class PitchBend(object):
         self.time = time
 
     def __repr__(self):
-        return 'PitchBend(pitch={:d}, time={:d})'.format(self.pitch, self.time)
+        return f'PitchBend(pitch={self.pitch:d}, time={self.time:d})'
 
 
 class ControlChange(object):
@@ -88,10 +89,10 @@ class ControlChange(object):
     def __init__(self, number, value, time):
         self.number = number
         self.value = value
-        self.time = time        
+        self.time = time
 
     def __repr__(self):
-        return ('ControlChange(number={:d}, value={:d}, time={:d})'.format(self.number, self.value, self.time))
+        return f'ControlChange(number={self.number:d}, value={self.number:d}, time={self.time:d})'
 
 
 class TimeSignature(object):
@@ -120,27 +121,23 @@ class TimeSignature(object):
     def __init__(self, numerator, denominator, time):
         if not (isinstance(numerator, int) and numerator > 0):
             raise ValueError(
-                '{} is not a valid `numerator` type or value'.format(
-                    numerator))
+                f'{numerator} is not a valid `numerator` type or value')
         if not (isinstance(denominator, int) and denominator > 0):
             raise ValueError(
-                '{} is not a valid `denominator` type or value'.format(
-                    denominator))
+                f'{denominator} is not a valid `denominator` type or value')
         if not (isinstance(time, (int, float)) and time >= 0):
             raise ValueError(
-                '{} is not a valid `time` type or value'.format(time))
+                f'{time} is not a valid `time` type or value')
 
         self.numerator = numerator
         self.denominator = denominator
         self.time = time
 
     def __repr__(self):
-        return "TimeSignature(numerator={}, denominator={}, time={})".format(
-            self.numerator, self.denominator, self.time)
+        return f'TimeSignature(numerator={self.numerator}, denominator={self.denominator}, time={self.time})'
 
     def __str__(self):
-        return '{}/{} at {:d} ticks'.format(
-            self.numerator, self.denominator, self.time)
+        return f'{self.numerator}/{self.denominator} at {self.time:d} ticks'
 
 
 class KeySignature(object):
@@ -167,26 +164,24 @@ class KeySignature(object):
     def __init__(self, key_name, time):
         if not isinstance(key_name, str):
             raise ValueError(
-                '{} is not a valid `key_name` string'.format(
-                    key_name))
+                f'{key_name} is not a valid `key_name` string')
         if not (isinstance(time, (int, float)) and time >= 0):
             raise ValueError(
-                '{} is not a valid `time` type or value'.format(time))
+                f'{time} is not a valid `time` type or value')
 
         self.key_name = key_name
         self.key_number = _key_name_to_key_number(key_name)
-        if not (self.key_number >= 0 and self.key_number < 24):
+        if not (0 <= self.key_number < 24):
             raise ValueError(
-                '{} is not a valid `key_number` type or value'.format(
-                    self.key_number))
+                f'{self.key_number} is not a valid `key_number` type or value')
         self.time = time
 
     def __repr__(self):
-        return "KeySignature(key_name={}, key_number={}, time={})".format(
-            self.key_name, self.key_number, self.time)
+        return f'KeySignature(key_name={self.key_name}, key_number={self.key_number}, time={self.time})'
 
     def __str__(self):
-        return '{} [{}] at {:d} ticks'.format(self.key_name, self.key_number, self.time)
+        return f'{self.key_name} [{self.key_name}] at {self.time:d} ticks'
+
 
 class Marker(object):
     def __init__(self, text, time):
@@ -198,7 +193,8 @@ class Marker(object):
             self.text.replace('"', r'\"'), self.time)
 
     def __str__(self):
-        return '"{}" at {:d} ticks'.format(self.text, self.time)
+        return f'"{self.text}" at {self.time:d} ticks'
+
 
 class Lyric(object):
     """TContains the key signature and the event time in ticks.
@@ -212,6 +208,7 @@ class Lyric(object):
     time : float
         The time in ticks of the lyric.
     """
+
     def __init__(self, text, time):
         self.text = text
         self.time = time
@@ -221,7 +218,7 @@ class Lyric(object):
             self.text.replace('"', r'\"'), self.time)
 
     def __str__(self):
-        return '"{}" at {:d} ticks'.format(self.text, self.time)
+        return f'"{self.text}" at {self.time:d} ticks'
 
 
 class TempoChange(object):
@@ -229,10 +226,8 @@ class TempoChange(object):
 
     Attributes
     ----------
-    numerator : int
-        Numerator of time signature.
-    denominator : int
-        Denominator of time signature.
+    tempo : int
+        Tempo value.
     time : float
         Time of event in ticks.
 
@@ -240,7 +235,7 @@ class TempoChange(object):
     --------
     Instantiate a Tempo object with BPM=120 at 3.14 ticks:
 
-    >>> ts = Tempo(120, 3.14)
+    >>> ts = TempoChange(120, 3.14)
     >>> print ts
     6/8 at 3.14 ticks
 
@@ -251,11 +246,10 @@ class TempoChange(object):
         self.time = time
 
     def __repr__(self):
-        return "TempoChange(tempo={}, time={})".format(
-            self.tempo, self.time)
+        return f'TempoChange(tempo={self.tempo}, time={self.time})'
 
     def __str__(self):
-        return '{} BPM at {:d} ticks'.format(self.tempo, self.time)
+        return f'{self.tempo} BPM at {self.time:d} ticks'
 
 
 class Instrument(object):
@@ -324,7 +318,7 @@ class Instrument(object):
     def __repr__(self):
         return 'Instrument(program={}, is_drum={}, name="{}")'.format(
             self.program, self.is_drum, self.name.replace('"', r'\"'))
-    
+
 
 def _key_name_to_key_number(key_string):
     # Create lists of possible mode names (major or minor)
