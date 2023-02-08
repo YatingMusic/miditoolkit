@@ -202,7 +202,7 @@ class MidiFile(object):
             last_note_on = collections.defaultdict(list)
             # Keep track of which instrument is playing in each channel
             # initialize to program 0 for all channels
-            current_instrument = np.zeros(16, dtype=np.int)
+            current_instrument = np.zeros(16, dtype=np.int32)
             ped_list = []
             for event in track:
                 # Look for track name events
