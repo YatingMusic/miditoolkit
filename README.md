@@ -51,14 +51,17 @@ pip install miditoolkit
 ## Example Usage
 
 ```python
-import miditoolkit
-path_midi = miditoolkit.midi.utils.example_midi_file()
-midi_obj = miditoolkit.midi.parser.MidiFile(path_midi)
+from miditoolkit.midi.parser import MidiFile
+from miditoolkit.midi.utils import example_midi_file
+
+path_midi = example_midi_file()
+midi_obj = MidiFile(path_midi)
+
 print(midi_obj)
+```
 
-"""
 Output:
-
+```
 ticks per beat: 480
 max tick: 72002
 tempo changes: 68
@@ -67,8 +70,6 @@ key sig: 0
 markers: 71
 lyrics: False
 instruments: 2
-
-"""
 ```
 A. [Parse and create MIDI files](examples/parse_and_create_MIDI_files.ipynb)  
 B. [Piano-roll Manipulation](examples/pinoroll_manipulation.ipynb)
