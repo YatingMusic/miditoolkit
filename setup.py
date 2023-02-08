@@ -18,8 +18,9 @@ setup(
 
     license='MIT',
     install_requires=[
-        'numpy >= 1.7.0',
         'mido >= 1.1.16',
+        'numpy >= 1.7.0',
+        'scipy >= 1.0',  # technically any version would do
     ]
 )
 
