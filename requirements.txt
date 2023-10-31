@@ -1,4 +1,7 @@
 matplotlib
-nump
+numpy
 mido
 yaml
+scipy
+pretty_midi
+
