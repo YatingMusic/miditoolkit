@@ -1,7 +1,7 @@
-matplotlib
-numpy
+numpy>=1.19,<1.24
 mido
 yaml
 scipy
 pretty_midi
+matplotlib
   
