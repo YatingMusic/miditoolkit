@@ -1,0 +1,4 @@
+matplotlib
+nump
+mido
+yaml
