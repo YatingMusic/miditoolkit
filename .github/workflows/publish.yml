@@ -20,11 +20,15 @@ jobs:
         python -m pip install --upgrade pip
         pip install build
 
-    - name: Build and Publish
-      run: |
-        python setup.py sdist bdist_wheel
-        pip install twine
-        twine upload dist/*
-      env:
-        TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+    # - name: Build and Publish
+    #   run: |
+    #     python setup.py sdist bdist_wheel
+    #     pip install twine
+    #     twine upload dist/*
+    - name: Build package
+      run: python -m build
+    - name: Publish package
+      uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
+      with:
+        user: __token__
         TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}

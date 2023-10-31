@@ -4,4 +4,3 @@ yaml
 scipy
 pretty_midi
 matplotlib
-setuptools
