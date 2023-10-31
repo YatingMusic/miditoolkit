@@ -6,4 +6,3 @@ midi_obj = miditoolkit.midi.parser.MidiFile(path_midi)
 
 print(midi_obj)
 
-
