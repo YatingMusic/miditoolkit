@@ -15,7 +15,8 @@ setup(
         "Topic :: Multimedia :: Sound/Audio :: MIDI",
     ],
     keywords='music midi mir',
-
+    long_description=open('README.md').read(),
+    long_description_content_type='text/markdown',
     license='MIT',
     install_requires=[
         'numpy >= 1.7.0',
