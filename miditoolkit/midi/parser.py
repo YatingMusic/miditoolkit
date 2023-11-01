@@ -8,6 +8,17 @@ from .containers import KeySignature, TimeSignature, Lyric, Note, PitchBend, Con
 
 DEFAULT_BPM = int(120)
 
+# We "hack" mido's Note_on messages checks to allow to add an "end" attribute, that
+# will serve us to sort the messages in the good order when writing a MIDI file.
+new_set = set(
+    list(mido.messages.SPEC_BY_TYPE["note_on"]["attribute_names"])
+    + ["end"]
+)
+mido.messages.SPEC_BY_TYPE["note_on"]["attribute_names"] = new_set
+mido.messages.checks._CHECKS[
+    "end"
+] = mido.messages.checks.check_time
+
 
 class MidiFile(object):
     def __init__(self, filename=None, file=None, ticks_per_beat=480, clip=False, charset='latin1'):
@@ -338,28 +349,37 @@ class MidiFile(object):
 
         # comparison function
         def event_compare(event1, event2):
-            secondary_sort = {
-                'set_tempo': lambda e: (1 * 256 * 256),
-                'time_signature': lambda e: (2 * 256 * 256),
-                'key_signature': lambda e: (3 * 256 * 256),
-                'marker': lambda e: (4 * 256 * 256),
-                'lyrics': lambda e: (5 * 256 * 256),
-                'program_change': lambda e: (6 * 256 * 256),
-                'pitchwheel': lambda e: ((7 * 256 * 256) + e.pitch),
-                'control_change': lambda e: (
-                        (8 * 256 * 256) + (e.control * 256) + e.value),
-                'note_off': lambda e: ((9 * 256 * 256) + (e.note * 256)),
-                'note_on': lambda e: (
-                        (10 * 256 * 256) + (e.note * 256) + e.velocity),
-                'end_of_track': lambda e: (11 * 256 * 256)
-            }
-            if (event1.time == event2.time and
-                    event1.type in secondary_sort and
-                    event2.type in secondary_sort):
-                return (secondary_sort[event1.type](event1) -
-                        secondary_sort[event2.type](event2))
+            if event1.time != event2.time:
+                return event1.time - event2.time
 
-            return event1.time - event2.time
+            # If its two note_on (at the same tick), sort by expected note_off in a FIFO logic
+            # This is required in case where the MIDI has notes starting at the same tick and one
+            # with a higher duration is listed before one with a shorter one. In this case, the note
+            # with the higher duration should come after, otherwise it will be ended first by the
+            # following note_off event. Ultimately, as the notes have the same starting time and pitch,
+            # the only thing that could be missed is their velocities. This check prevents this.
+            if event1.type == event2.type == "note_on":
+                return event1.end - event2.end
+
+            secondary_sort = {
+                "set_tempo": 1,
+                "time_signature": 2,
+                "key_signature": 3,
+                "marker": 4,
+                "lyrics": 5,
+                "program_change": 6,
+                "pitchwheel": 7,
+                "control_change": 8,
+                "note_off": 9,
+                "note_on": 10,
+                "end_of_track": 11,
+            }
+
+            if event1.type in secondary_sort and event2.type in secondary_sort:
+                return secondary_sort[event1.type] - secondary_sort[event2.type]
+
+            # Events have the same order / position, no change between position
+            return 0
 
         if (filename is None) and (file is None):
             raise IOError('please specify the output.')
@@ -550,13 +570,26 @@ class MidiFile(object):
                 if segment:
                     note = _check_note_within_range(note, start_tick, end_tick, shift=True)
                 if note:
-                    track.append(mido.Message(
-                        'note_on', time=note.start,
-                        channel=channel, note=note.pitch, velocity=note.velocity))
+                    track.append(
+                        mido.Message(
+                            "note_on",
+                            time=note.start,
+                            channel=channel,
+                            note=note.pitch,
+                            velocity=note.velocity,
+                            end=note.end,
+                        )
+                    )
                     # Also need a note-off event (note on with velocity 0)
-                    track.append(mido.Message(
-                        'note_on', time=note.end,
-                        channel=channel, note=note.pitch, velocity=0))
+                    track.append(
+                        mido.Message(
+                            "note_off",
+                            time=note.end,
+                            channel=channel,
+                            note=note.pitch,
+                            velocity=note.velocity,
+                        )
+                    )
             track = sorted(track, key=functools.cmp_to_key(event_compare))
 
             memo = 0
@@ -588,18 +621,6 @@ class MidiFile(object):
             #                track.insert(j+2, cc_list[i+1])
             #                i = i+2
             #                break
-
-            # If there's a note off event and a note on event with the same
-            # tick and pitch, put the note off event first
-            for n, (event1, event2) in enumerate(zip(track[:-1], track[1:])):
-                if (event1.time == event2.time and
-                        event1.type == 'note_on' and
-                        event2.type == 'note_on' and
-                        event1.note == event2.note and
-                        event1.velocity != 0 and
-                        event2.velocity == 0):
-                    track[n] = event2
-                    track[n + 1] = event1
 
             # Finally, add in an end of track event
             track.append(mido.MetaMessage(
