@@ -138,3 +138,6 @@ miditoolkit.egg-info/
 *.pypirc
 Thumbs.db
 *.gz
+
+# PyCharm config files
+.idea/
