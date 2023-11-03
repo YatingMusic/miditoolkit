@@ -10,8 +10,8 @@ from miditoolkit import MidiFile
 from tqdm import tqdm
 
 
-def test_merge_tracks():
-    midi_paths = list(Path("tests").glob("**/*.mid"))
+def test_load_dump():
+    midi_paths = list(Path("tests", "test_cases").glob("**/*.mid"))
     for path in tqdm(midi_paths, desc="Checking midis load/save"):
         midi = MidiFile(path)
         # Writing it unchanged
