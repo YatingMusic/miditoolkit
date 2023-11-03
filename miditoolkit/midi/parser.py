@@ -339,6 +339,23 @@ class MidiFile(object):
         output_str = "\n".join(output_list)
         return output_str
 
+    def __eq__(self, other):
+        # Similarly to `Instrument`, we check that the MIDIs attributes are respectively equal.
+        if self.ticks_per_beat != other.ticks_per_beat:
+            return False
+
+        # Check list attributes.
+        # These list should all contain objects that is either a dataclass or implements `__eq__`.
+        lists_attr = [name for name, val in vars(self).items() if isinstance(val, list)]
+        for list_attr in lists_attr:
+            if len(getattr(self, list_attr)) != len(getattr(other, list_attr)):
+                return False
+            if any(a1 != a2 for a1, a2 in zip(getattr(self, list_attr), getattr(other, list_attr))):
+                return False
+
+        # All good, both MIDIs holds the exact same content
+        return True
+
     def dump(self,
              filename=None,
              file=None,

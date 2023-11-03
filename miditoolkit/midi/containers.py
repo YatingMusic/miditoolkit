@@ -1,7 +1,10 @@
 import re
+from typing import List, Union
+from dataclasses import dataclass
 
 
-class Note(object):
+@dataclass
+class Note:
     """A note event.
 
     Parameters
@@ -17,21 +20,19 @@ class Note(object):
 
     """
 
-    def __init__(self, velocity, pitch, start, end):
-        self.velocity = velocity
-        self.pitch = pitch
-        self.start = start
-        self.end = end
+    velocity: str
+    pitch: int
+    start: int
+    end: int
 
-    def get_duration(self):
+    @property
+    def duration(self):
         """Get the duration of the note in ticks."""
         return self.end - self.start
 
-    def __repr__(self):
-        return f'Note(start={self.start:d}, end={self.end:d}, pitch={self.pitch}, velocity={self.velocity})'
 
-
-class Pedal(object):
+@dataclass
+class Pedal:
     """A pedal event.
 
     Parameters
@@ -43,16 +44,16 @@ class Pedal(object):
 
     """
 
-    def __init__(self, start, end):
-        self.start = start
-        self.end = end
-        self.duration = end - start
+    start: float
+    end: float
 
-    def __repr__(self):
-        return f'Pedal(start={self.start:d}, end={self.end:d})'
+    @property
+    def duration(self):
+        return self.end - self.start
 
 
-class PitchBend(object):
+@dataclass
+class PitchBend:
     """A pitch bend event.
 
     Parameters
@@ -64,15 +65,12 @@ class PitchBend(object):
 
     """
 
-    def __init__(self, pitch, time):
-        self.pitch = pitch
-        self.time = time
-
-    def __repr__(self):
-        return f'PitchBend(pitch={self.pitch:d}, time={self.time:d})'
+    pitch: int
+    time: float
 
 
-class ControlChange(object):
+@dataclass
+class ControlChange:
     """A control change event.
 
     Parameters
@@ -86,16 +84,13 @@ class ControlChange(object):
 
     """
 
-    def __init__(self, number, value, time):
-        self.number = number
-        self.value = value
-        self.time = time
-
-    def __repr__(self):
-        return f'ControlChange(number={self.number:d}, value={self.number:d}, time={self.time:d})'
+    number: int
+    value: int
+    time: float
 
 
-class TimeSignature(object):
+@dataclass
+class TimeSignature:
     """Container for a Time Signature event, which contains the time signature
     numerator, denominator and the event time in ticks.
 
@@ -118,35 +113,34 @@ class TimeSignature(object):
 
     """
 
-    def __init__(self, numerator, denominator, time):
-        if not (isinstance(numerator, int) and numerator > 0):
-            raise ValueError(
-                f'{numerator} is not a valid `numerator` type or value')
-        if not (isinstance(denominator, int) and denominator > 0):
-            raise ValueError(
-                f'{denominator} is not a valid `denominator` type or value')
-        if not (isinstance(time, (int, float)) and time >= 0):
-            raise ValueError(
-                f'{time} is not a valid `time` type or value')
+    numerator: int
+    denominator: int
+    time: float
 
-        self.numerator = numerator
-        self.denominator = denominator
-        self.time = time
-
-    def __repr__(self):
-        return f'TimeSignature(numerator={self.numerator}, denominator={self.denominator}, time={self.time})'
+    def __post_init__(self):
+        if self.numerator <= 0:
+            raise ValueError(
+                f"{self.numerator} is not a valid `numerator` value"
+            )
+        if self.denominator <= 0:
+            raise ValueError(
+                f"{self.denominator} is not a valid `denominator` value"
+            )
+        if self.time < 0:
+            raise ValueError(f"{self.time} is not a valid `time` value")
 
     def __str__(self):
-        return f'{self.numerator}/{self.denominator} at {self.time:d} ticks'
+        return f"{self.numerator}/{self.denominator} at {self.time:d} ticks"
 
 
-class KeySignature(object):
+@dataclass
+class KeySignature:
     """Contains the key signature and the event time in ticks.
     Only supports major and minor keys.
 
     Attributes
     ----------
-    key_number : int
+    key_name : str
         Key number according to ``[0, 11]`` Major, ``[12, 23]`` minor.
         For example, 0 is C Major, 12 is C minor.
     time : float
@@ -156,47 +150,44 @@ class KeySignature(object):
     --------
     Instantiate a C# minor KeySignature object at 3.14 ticks:
 
-    >>> ks = KeySignature(13, 3.14)
+    >>> ks = KeySignature("C#", 3.14)
     >>> print ks
     C# minor at 3.14 ticks
     """
 
-    def __init__(self, key_name, time):
-        if not isinstance(key_name, str):
-            raise ValueError(
-                f'{key_name} is not a valid `key_name` string')
-        if not (isinstance(time, (int, float)) and time >= 0):
-            raise ValueError(
-                f'{time} is not a valid `time` type or value')
+    key_name: str
+    time: float
 
-        self.key_name = key_name
-        self.key_number = _key_name_to_key_number(key_name)
+    def __post_init__(self):
+        if self.time < 0:
+            raise ValueError(f"{self.time} is not a valid `time` value")
+
+        self.key_number = _key_name_to_key_number(self.key_name)
         if not (0 <= self.key_number < 24):
             raise ValueError(
-                f'{self.key_number} is not a valid `key_number` type or value')
-        self.time = time
-
-    def __repr__(self):
-        return f'KeySignature(key_name={self.key_name}, key_number={self.key_number}, time={self.time})'
+                f"{self.key_number} is not a valid `key_number` type or value"
+            )
 
     def __str__(self):
-        return f'{self.key_name} [{self.key_name}] at {self.time:d} ticks'
+        return f"{self.key_name} [{self.key_name}] at {self.time:d} ticks"
 
 
-class Marker(object):
-    def __init__(self, text, time):
-        self.text = text
-        self.time = time
+@dataclass
+class Marker:
+    text: str
+    time: float
 
     def __repr__(self):
         return 'Marker(text="{}", time={})'.format(
-            self.text.replace('"', r'\"'), self.time)
+            self.text.replace('"', r"\""), self.time
+        )
 
     def __str__(self):
         return f'"{self.text}" at {self.time:d} ticks'
 
 
-class Lyric(object):
+@dataclass
+class Lyric:
     """TContains the key signature and the event time in ticks.
     Only supports major and minor keys.
 
@@ -209,19 +200,20 @@ class Lyric(object):
         The time in ticks of the lyric.
     """
 
-    def __init__(self, text, time):
-        self.text = text
-        self.time = time
+    text: str
+    time: float
 
     def __repr__(self):
         return 'Lyric(text="{}", time={})'.format(
-            self.text.replace('"', r'\"'), self.time)
+            self.text.replace('"', r"\""), self.time
+        )
 
     def __str__(self):
         return f'"{self.text}" at {self.time:d} ticks'
 
 
-class TempoChange(object):
+@dataclass
+class TempoChange:
     """Container for a Tempo event, which contains the tempo in BPM and the event time in ticks.
 
     Attributes
@@ -241,18 +233,14 @@ class TempoChange(object):
 
     """
 
-    def __init__(self, tempo, time):
-        self.tempo = tempo
-        self.time = time
-
-    def __repr__(self):
-        return f'TempoChange(tempo={self.tempo}, time={self.time})'
+    tempo: Union[float, int]
+    time: float
 
     def __str__(self):
-        return f'{self.tempo} BPM at {self.time:d} ticks'
+        return f"{self.tempo} BPM at {self.time:d} ticks"
 
 
-class Instrument(object):
+class Instrument:
     """Object to hold event information for a single instrument.
 
     Parameters
@@ -273,30 +261,35 @@ class Instrument(object):
     name : str
         Name of the instrument.
     notes : list
-        List of :class:`pretty_midi.Note` objects.
+        List of :class:`miditoolkit.Note` objects.
     pitch_bends : list
-        List of of :class:`pretty_midi.PitchBend` objects.
+        List of :class:`miditoolkit.PitchBend` objects.
     control_changes : list
-        List of :class:`pretty_midi.ControlChange` objects.
+        List of :class:`miditoolkit.ControlChange` objects.
 
     """
 
-    def __init__(self, program, is_drum=False, name=''):
-        """Create the Instrument.
-
-        """
+    def __init__(
+        self,
+        program: int,
+        is_drum: bool = False,
+        name: str = "",
+        notes: List[Note] = None,
+        pitch_bends: List[PitchBend] = None,
+        control_changes: List[ControlChange] = None,
+        pedals: List[Pedal] = None,
+    ):
+        """Create the Instrument."""
         self.program = program
         self.is_drum = is_drum
         self.name = name
-        self.notes = []
-        self.pitch_bends = []
-        self.control_changes = []
-        self.pedals = []
+        self.notes = [] if notes is None else notes
+        self.pitch_bends = [] if pitch_bends is None else pitch_bends
+        self.control_changes = [] if control_changes is None else control_changes
+        self.pedals = [] if pedals is None else pedals
 
     def remove_invalid_notes(self, verbose=True):
-        """Removes any notes whose end time is before or at their start time.
-
-        """
+        """Removes any notes whose end time is before or at their start time."""
         # Crete a list of all invalid notes
         notes_to_delete = []
         for note in self.notes:
@@ -304,10 +297,10 @@ class Instrument(object):
                 notes_to_delete.append(note)
         if verbose:
             if len(notes_to_delete):
-                print('\nInvalid notes:')
-                print(notes_to_delete, '\n\n')
+                print("\nInvalid notes:")
+                print(notes_to_delete, "\n\n")
             else:
-                print('no invalid notes found')
+                print("no invalid notes found")
             return True
 
         # Remove the notes found
@@ -317,46 +310,75 @@ class Instrument(object):
 
     def __repr__(self):
         return 'Instrument(program={}, is_drum={}, name="{}")'.format(
-            self.program, self.is_drum, self.name.replace('"', r'\"'))
+            self.program, self.is_drum, self.name.replace('"', r"\"")
+        )
+
+    def __eq__(self, other):
+        # Here we check all tracks attributes except the name.
+        # The list attributes will be checked sequentially one by one, this means that
+        # if two Instrument objects have the same musical content, but with some elements in
+        # different orders (for example two notes with swapped indices in a list), the method will
+        # return False. To make this method insensible to the lists orders, you can manually sort
+        # them before calling it: `track.notes.sort(key=lambda x: (x.start, x.pitch, x.end, x.velocity))`.
+        # The same can be done for control_changes, pitch_bends and pedals.
+        if self.is_drum != other.is_drum or self.program != other.program:
+            return False
+
+        # Check list attributes.
+        # These list should all contain objects that is either a dataclass or implements `__eq__`.
+        lists_attr = [name for name, val in vars(self).items() if isinstance(val, list)]
+        for list_attr in lists_attr:
+            if len(getattr(self, list_attr)) != len(getattr(other, list_attr)):
+                return False
+            if any(a1 != a2 for a1, a2 in zip(getattr(self, list_attr), getattr(other, list_attr))):
+                return False
+
+        # All good, both tracks holds the exact same content
+        return True
 
 
 def _key_name_to_key_number(key_string):
     # Create lists of possible mode names (major or minor)
-    major_strs = ['M', 'Maj', 'Major', 'maj', 'major']
-    minor_strs = ['m', 'Min', 'Minor', 'min', 'minor']
+    major_strs = ["M", "Maj", "Major", "maj", "major"]
+    minor_strs = ["m", "Min", "Minor", "min", "minor"]
     # Construct regular expression for matching key
     pattern = re.compile(
         # Start with any of A-G, a-g
-        '^(?P<key>[ABCDEFGabcdefg])'
+        "^(?P<key>[ABCDEFGabcdefg])"
         # Next, look for #, b, or nothing
-        '(?P<flatsharp>[#b]?)'
+        "(?P<flatsharp>[#b]?)"
         # Allow for a space between key and mode
-        ' ?'
+        " ?"
         # Next, look for any of the mode strings
-        '(?P<mode>(?:(?:' +
+        "(?P<mode>(?:(?:"
+        +
         # Next, look for any of the major or minor mode strings
-        ')|(?:'.join(major_strs + minor_strs) + '))?)$')
+        ")|(?:".join(major_strs + minor_strs)
+        + "))?)$"
+    )
     # Match provided key string
     result = re.match(pattern, key_string)
     if result is None:
-        raise ValueError('Supplied key {} is not valid.'.format(key_string))
+        raise ValueError("Supplied key {} is not valid.".format(key_string))
     # Convert result to dictionary
     result = result.groupdict()
 
     # Map from key string to pitch class number
-    key_number = {'c': 0, 'd': 2, 'e': 4, 'f': 5,
-                  'g': 7, 'a': 9, 'b': 11}[result['key'].lower()]
+    key_number = {"c": 0, "d": 2, "e": 4, "f": 5, "g": 7, "a": 9, "b": 11}[
+        result["key"].lower()
+    ]
     # Increment or decrement pitch class if a flat or sharp was specified
-    if result['flatsharp']:
-        if result['flatsharp'] == '#':
+    if result["flatsharp"]:
+        if result["flatsharp"] == "#":
             key_number += 1
-        elif result['flatsharp'] == 'b':
+        elif result["flatsharp"] == "b":
             key_number -= 1
     # Circle around 12 pitch classes
     key_number = key_number % 12
     # Offset if mode is minor, or the key name is lowercase
-    if result['mode'] in minor_strs or (result['key'].islower() and
-                                        result['mode'] not in major_strs):
+    if result["mode"] in minor_strs or (
+        result["key"].islower() and result["mode"] not in major_strs
+    ):
         key_number += 12
 
     return key_number
