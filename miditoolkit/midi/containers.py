@@ -13,14 +13,14 @@ class Note:
         Note velocity.
     pitch : int
         Note pitch, as a MIDI note number.
-    start : float
+    start : int
         Note on time, absolute, in ticks.
-    end : float
+    end : int
         Note off time, absolute, in ticks.
 
     """
 
-    velocity: str
+    velocity: int
     pitch: int
     start: int
     end: int
@@ -37,15 +37,15 @@ class Pedal:
 
     Parameters
     ----------
-    start : float
+    start : int
         Time where the pedal starts.
-    end : float
+    end : int
         Time where the pedal ends.
 
     """
 
-    start: float
-    end: float
+    start: int
+    end: int
 
     @property
     def duration(self):
@@ -60,13 +60,13 @@ class PitchBend:
     ----------
     pitch : int
         MIDI pitch bend amount, in the range ``[-8192, 8191]``.
-    time : float
+    time : int
         Time where the pitch bend occurs.
 
     """
 
     pitch: int
-    time: float
+    time: int
 
 
 @dataclass
@@ -79,14 +79,14 @@ class ControlChange:
         The control change number, in ``[0, 127]``.
     value : int
         The value of the control change, in ``[0, 127]``.
-    time : float
+    time : int
         Time where the control change occurs.
 
     """
 
     number: int
     value: int
-    time: float
+    time: int
 
 
 @dataclass
@@ -100,32 +100,28 @@ class TimeSignature:
         Numerator of time signature.
     denominator : int
         Denominator of time signature.
-    time : float
+    time : int
         Time of event in ticks.
 
     Examples
     --------
-    Instantiate a TimeSignature object with 6/8 time signature at 3.14 ticks:
+    Instantiate a TimeSignature object with 6/8 time signature at the tick 384:
 
-    >>> ts = TimeSignature(6, 8, 3.14)
+    >>> ts = TimeSignature(6, 8, 384)
     >>> print ts
-    6/8 at 3.14 ticks
+    6/8 at the tick 384
 
     """
 
     numerator: int
     denominator: int
-    time: float
+    time: int
 
     def __post_init__(self):
         if self.numerator <= 0:
-            raise ValueError(
-                f"{self.numerator} is not a valid `numerator` value"
-            )
+            raise ValueError(f"{self.numerator} is not a valid `numerator` value")
         if self.denominator <= 0:
-            raise ValueError(
-                f"{self.denominator} is not a valid `denominator` value"
-            )
+            raise ValueError(f"{self.denominator} is not a valid `denominator` value")
         if self.time < 0:
             raise ValueError(f"{self.time} is not a valid `time` value")
 
@@ -143,20 +139,20 @@ class KeySignature:
     key_name : str
         Key number according to ``[0, 11]`` Major, ``[12, 23]`` minor.
         For example, 0 is C Major, 12 is C minor.
-    time : float
+    time : int
         Time of event in ticks.
 
     Examples
     --------
-    Instantiate a C# minor KeySignature object at 3.14 ticks:
+    Instantiate a C# minor KeySignature object at the tick 384:
 
-    >>> ks = KeySignature("C#", 3.14)
+    >>> ks = KeySignature("C#", 384)
     >>> print ks
-    C# minor at 3.14 ticks
+    C# minor at the tick 384
     """
 
     key_name: str
-    time: float
+    time: int
 
     def __post_init__(self):
         if self.time < 0:
@@ -175,7 +171,7 @@ class KeySignature:
 @dataclass
 class Marker:
     text: str
-    time: float
+    time: int
 
     def __repr__(self):
         return 'Marker(text="{}", time={})'.format(
@@ -196,12 +192,12 @@ class Lyric:
     ----------
     text : str
         The text of the lyric.
-    time : float
+    time : int
         The time in ticks of the lyric.
     """
 
     text: str
-    time: float
+    time: int
 
     def __repr__(self):
         return 'Lyric(text="{}", time={})'.format(
@@ -220,21 +216,21 @@ class TempoChange:
     ----------
     tempo : int
         Tempo value.
-    time : float
+    time : int
         Time of event in ticks.
 
     Examples
     --------
-    Instantiate a Tempo object with BPM=120 at 3.14 ticks:
+    Instantiate a Tempo object with BPM=120 at the tick 384:
 
-    >>> ts = TempoChange(120, 3.14)
+    >>> ts = TempoChange(120, 384)
     >>> print ts
-    6/8 at 3.14 ticks
+    Tempo of 120 bpm at the tick 384.
 
     """
 
     tempo: Union[float, int]
-    time: float
+    time: int
 
     def __str__(self):
         return f"{self.tempo} BPM at {self.time:d} ticks"
@@ -288,7 +284,7 @@ class Instrument:
         self.control_changes = [] if control_changes is None else control_changes
         self.pedals = [] if pedals is None else pedals
 
-    def remove_invalid_notes(self, verbose=True):
+    def remove_invalid_notes(self, verbose: bool = True):
         """Removes any notes whose end time is before or at their start time."""
         # Crete a list of all invalid notes
         notes_to_delete = []
@@ -330,14 +326,17 @@ class Instrument:
         for list_attr in lists_attr:
             if len(getattr(self, list_attr)) != len(getattr(other, list_attr)):
                 return False
-            if any(a1 != a2 for a1, a2 in zip(getattr(self, list_attr), getattr(other, list_attr))):
+            if any(
+                a1 != a2
+                for a1, a2 in zip(getattr(self, list_attr), getattr(other, list_attr))
+            ):
                 return False
 
         # All good, both tracks holds the exact same content
         return True
 
 
-def _key_name_to_key_number(key_string):
+def _key_name_to_key_number(key_string: str):
     # Create lists of possible mode names (major or minor)
     major_strs = ["M", "Maj", "Major", "maj", "major"]
     minor_strs = ["m", "Min", "Minor", "min", "minor"]
