@@ -42,7 +42,6 @@ setup(
         "numpy >= 1.19",
         "mido >= 1.1.16",
         "matplotlib",
-        "scipy",  # TODO if possible, remove the function call and in turn remove dependency
     ],
 )
 

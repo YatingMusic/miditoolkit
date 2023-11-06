@@ -639,7 +639,7 @@ class MidiFile(object):
             while i < len(track):
                 # print(i)
                 # print(len(track))
-                if track[i].type == 'control_change':
+                if track[i].type == "control_change":
                     tmp = track[i].value
                     if tmp == memo:
                         track.pop(i)

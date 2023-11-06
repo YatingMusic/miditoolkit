@@ -1,89 +1,108 @@
-import numpy as np
 from copy import deepcopy
-from scipy.sparse import csc_matrix
-import miditoolkit.midi.containers as ct
+from typing import List, Tuple
 
-
-PITCH_RANGE = 128
-
-
-# def get_onsets_pianoroll():
-#     pass
-
-
-# def get_offsets_pianoroll():
-#     pass
+import numpy as np
+from miditoolkit import Note
+from miditoolkit.constants import PITCH_RANGE
 
 
 def notes2pianoroll(
-        note_stream_ori, 
-        ticks_per_beat=480, 
-        downbeat=None, 
-        resample_factor=1.0, 
-        resample_method=round,
-        binary_thres=None,
-        max_tick=None,
-        to_sparse=False, 
-        keep_note=True):
-    
-    # pass by value
-    note_stream = deepcopy(note_stream_ori)
+    notes: List[Note],
+    pitch_range: Tuple[int, int] = None,
+    pitch_offset: int = 0,
+    resample_factor: float = 1.0,
+    resample_method=round,
+    velocity_threshold: int = 0,
+    time_portion: Tuple[int, int] = None,
+    keep_note_with_zero_duration: bool = True,
+) -> np.ndarray:
+    # Checks
+    assert len(notes) > 0, "No notes were provided, at list one must be in the list."
+    assert (
+        velocity_threshold <= 0 <= 127
+    ), "The velocity threshold must be comprised between 0 and 127 (included)."
+    assert (
+        0 <= pitch_offset < 127
+    ), "The pitch offset must be comprised between 0 and 126 (included)."
 
-    # sort by end time
-    note_stream = sorted(note_stream, key=lambda x: x.end)
-    
-    # set max tick
-    if max_tick is None:
-        max_tick = 0 if len(note_stream) == 0 else note_stream[-1].end
-        
-    # resampling
+    # Copy and sort the notes
+    note_stream = deepcopy(notes)
+    note_stream.sort(key=lambda x: (x.end, x.start, x.velocity))
+
+    # Set start and end tick
+    if time_portion is not None:
+        start_tick, max_tick = time_portion
+    else:
+        start_tick = 0
+        max_tick = note_stream[-1].end
+
+    # Pitch range detection
+    def_low_pitch, def_high_pitch = PITCH_RANGE
+    if pitch_range is not None:
+        low_pitch, high_pitch = pitch_range
+        assert (
+            def_low_pitch <= low_pitch < high_pitch <= def_high_pitch
+        ), f"The pitch range must be comprise between {def_low_pitch} and {def_high_pitch} (included)."
+        low_pitch = max(def_low_pitch, low_pitch - pitch_offset)
+        high_pitch = min(def_high_pitch, high_pitch + pitch_offset)
+    else:
+        low_pitch, high_pitch = def_low_pitch, def_high_pitch
+
+    # Resampling time
     if resample_factor != 1.0:
         max_tick = int(resample_method(max_tick * resample_factor))
         for note in note_stream:
             note.start = int(resample_method(note.start * resample_factor))
             note.end = int(resample_method(note.end * resample_factor))
-    
-    # create pianoroll
-    time_coo = []
-    pitch_coo = []
-    velocity = []
-    
+
+    # Create pianoroll
+    pianoroll = np.zeros(shape=(max_tick, high_pitch), dtype=np.int8)
     for note in note_stream:
-        # discard notes having no velocity
-        if note.velocity == 0:
+        # Discarding notes having velocity under the threshold
+        # Or outside the tick portion, or the pitch range
+        if note.velocity < velocity_threshold:
+            continue
+        if note.end < start_tick:
+            continue
+        if note.start > max_tick:
+            break
+        if pitch_range is not None and (
+            note.pitch < low_pitch or note.pitch > high_pitch
+        ):
             continue
 
-        # duration
-        duration = note.end - note.start
+        # Adjust notes times if needed
+        if note.start < start_tick:
+            note.start = start_tick
+        if note.end > max_tick:
+            note.end = max_tick
 
         # keep notes with zero length (set to 1)
-        if keep_note and (duration == 0):
-            duration = 1
+        if keep_note_with_zero_duration and note.start == note.end:
             note.end += 1
 
-        # set time
-        time_coo.extend(np.arange(note.start, note.end))
-        
-        # set pitch
-        pitch_coo.extend([note.pitch] * duration)
-        
-        # set velocity
-        v_tmp = note.velocity
-        if binary_thres is not None:
-            v_tmp = v_tmp > binary_thres
-        velocity.extend([v_tmp] * duration)
-    
-    # output
-    pianoroll = csc_matrix((velocity, (time_coo, pitch_coo)), shape=(max_tick, PITCH_RANGE))
-    pianoroll = pianoroll if to_sparse else pianoroll.toarray()
-    
-    return pianoroll      
+        # set array value
+        indices = (
+            list(range(note.start, note.end)),
+            [note.pitch] * (note.end - note.start),
+        )
+        pianoroll[indices] = note.velocity
+
+    # Cut the array if needed on its two dimensions (time, pitch)
+    if start_tick > 0:
+        pianoroll = pianoroll[start_tick:]
+    if pitch_range is None:
+        # Automatically cut the lowest and highest
+        pitch_played = np.where(np.any(pianoroll != 0, axis=0) == 1)[0]
+        low_pitch = max(def_low_pitch, pitch_played[0] - pitch_offset)
+        high_pitch = min(def_high_pitch, pitch_played[-1] - def_high_pitch)
+    if low_pitch != def_low_pitch or high_pitch != def_high_pitch:
+        pianoroll = pianoroll[:, low_pitch : high_pitch + 1]
+
+    return pianoroll
 
 
-def pianoroll2notes(
-        pianoroll,
-        resample_factor=1.0):
-
+def pianoroll2notes(pianoroll: np.ndarray, resample_factor: float = 1.0):
     binarized = pianoroll > 0
     padded = np.pad(binarized, ((1, 1), (0, 0)), "constant")
     diff = np.diff(padded.astype(np.int8), axis=0)
@@ -95,15 +114,17 @@ def pianoroll2notes(
 
     notes = []
     for idx, pitch in enumerate(pitches):
-        st = note_ons[idx] 
+        st = note_ons[idx]
         ed = note_offs[idx]
         velocity = pianoroll[st, pitch]
         velocity = max(0, min(127, velocity))
         notes.append(
-            ct.Note(
-                velocity=int(velocity), 
-                pitch=pitch, 
-                start=int(st*resample_factor), 
-                end=int(ed*resample_factor)))
+            Note(
+                velocity=int(velocity),
+                pitch=pitch,
+                start=int(st * resample_factor),
+                end=int(ed * resample_factor),
+            )
+        )
     notes.sort(key=lambda x: x.start)
     return notes
