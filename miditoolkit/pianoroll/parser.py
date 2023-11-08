@@ -1,5 +1,5 @@
 from copy import deepcopy
-from typing import List, Tuple
+from typing import List, Tuple, Callable, Union
 
 import numpy as np
 from miditoolkit import Note
@@ -11,7 +11,7 @@ def notes2pianoroll(
     pitch_range: Tuple[int, int] = None,
     pitch_offset: int = 0,
     resample_factor: float = 1.0,
-    resample_method=round,
+    resample_method: Callable = round,
     velocity_threshold: int = 0,
     time_portion: Tuple[int, int] = None,
     keep_note_with_zero_duration: bool = True,
@@ -19,7 +19,7 @@ def notes2pianoroll(
     # Checks
     assert len(notes) > 0, "No notes were provided, at list one must be in the list."
     assert (
-        velocity_threshold <= 0 <= 127
+        0 <= velocity_threshold <= 127
     ), "The velocity threshold must be comprised between 0 and 127 (included)."
     assert (
         0 <= pitch_offset < 127
@@ -102,14 +102,34 @@ def notes2pianoroll(
     return pianoroll
 
 
-def pianoroll2notes(pianoroll: np.ndarray, resample_factor: float = 1.0):
-    binarized = pianoroll > 0
-    padded = np.pad(binarized, ((1, 1), (0, 0)), "constant")
-    diff = np.diff(padded.astype(np.int8), axis=0)
+def pianoroll2notes(
+        pianoroll: np.ndarray,
+        resample_factor: float = 1.0,
+        pitch_range: Union[int, Tuple[int, int]] = None,
+):
+    # Handles pitch range
+    # Pads the pianoroll array so that the pitch dimension size is PITCH_RANGE[1] (128)
+    if isinstance(pitch_range, int):
+        low_pitch = pitch_range
+    elif isinstance(pitch_range, tuple):
+        low_pitch = pitch_range[0]
+    else:
+        low_pitch = PITCH_RANGE[0]
+    high_pitch = low_pitch + pianoroll.shape[1]
+    arrays = []
+    if low_pitch != PITCH_RANGE[0]:
+        arrays.append(np.zeros((pianoroll.shape[0], low_pitch), dtype=pianoroll.dtype))
+    arrays.append(pianoroll)
+    if high_pitch != PITCH_RANGE[1]:
+        arrays.append(np.zeros((pianoroll.shape[0], PITCH_RANGE[1] - high_pitch), dtype=pianoroll.dtype))
+    if len(arrays) > 1:
+        pianoroll = np.concatenate(arrays, axis=1)
 
-    positives = np.nonzero((diff > 0).T)
-    pitches = positives[0]
-    note_ons = positives[1]
+    # pad with zeros for the first and last events
+    padded = np.pad(pianoroll, ((1, 1), (0, 0)), "constant")
+    diff = np.diff(padded, axis=0)
+
+    pitches, note_ons = np.nonzero((diff > 0).T)
     note_offs = np.nonzero((diff < 0).T)[1]
 
     notes = []
