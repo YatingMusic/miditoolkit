@@ -12,12 +12,12 @@ from tqdm import tqdm
 
 
 def test_pianoroll():
-    midi_paths = list(Path("tests", "testcases").glob("**/*.mid"))[1:]
+    midi_paths = list(Path("tests", "testcases").glob("**/*.mid"))
     test_sets = [
         {"pitch_range": (0, 127)},
         {"pitch_range": (24, 96)},
-        {"pitch_range": (24, 96), "pitch_offset": 12},
-        {"pitch_range": (24, 96), "pitch_offset": 12, "resample_factor": 0.6},
+        {"pitch_range": (24, 116), "pitch_offset": 12},
+        {"pitch_range": (6, 96), "pitch_offset": 12},
         {"pitch_range": (24, 96), "pitch_offset": 12, "velocity_threshold": 36},
     ]
 
@@ -50,15 +50,14 @@ def test_pianoroll():
                     new_notes = [note for note in new_notes if note.velocity >= test_set["velocity_threshold"]]
 
                 # Assert notes are all retrieved
-                # TODO make the tests pass here.
-                continue
                 assert len(new_notes) == len(
                     new_new_notes
                 ), "Number of notes changed in pianoroll conversion"
                 for note1, note2 in zip(new_notes, new_new_notes):
-                    if "resample_factor" in test_set:
-                        note1.start = int(round(note1.start * test_set["resample_factor"]))
-                        note1.end = int(round(note1.end * test_set["resample_factor"]))
+                    # We don't test the resampling factor as it might later the number of notes
+                    # if "resample_factor" in test_set:
+                    #    note1.start = int(round(note1.start * test_set["resample_factor"]))
+                    #    note1.end = int(round(note1.end * test_set["resample_factor"]))
                     assert (
                         note1 == note2
                     ), "Notes before and after pianoroll conversion are not the same"

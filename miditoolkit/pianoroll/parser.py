@@ -40,9 +40,6 @@ def notes2pianoroll(
     def_low_pitch, def_high_pitch = PITCH_RANGE
     if pitch_range is not None:
         low_pitch, high_pitch = pitch_range
-        assert (
-            def_low_pitch <= low_pitch < high_pitch <= def_high_pitch
-        ), f"The pitch range must be comprise between {def_low_pitch} and {def_high_pitch} (included)."
         low_pitch = max(def_low_pitch, low_pitch - pitch_offset)
         high_pitch = min(def_high_pitch, high_pitch + pitch_offset)
     else:
@@ -56,7 +53,7 @@ def notes2pianoroll(
             note.end = int(resample_method(note.end * resample_factor))
 
     # Create pianoroll
-    pianoroll = np.zeros(shape=(max_tick, high_pitch), dtype=np.int8)
+    pianoroll = np.zeros(shape=(max_tick, high_pitch + 1), dtype=np.int8)
     for note in note_stream:
         # Discarding notes having velocity under the threshold
         # Or outside the tick portion, or the pitch range
@@ -67,7 +64,7 @@ def notes2pianoroll(
         if note.start > max_tick:
             break
         if pitch_range is not None and (
-            note.pitch < low_pitch or note.pitch > high_pitch
+            note.pitch < pitch_range[0] or note.pitch > pitch_range[1]
         ):
             continue
 
@@ -111,11 +108,12 @@ def pianoroll2notes(
     # Pads the pianoroll array so that the pitch dimension size is PITCH_RANGE[1] (128)
     if isinstance(pitch_range, int):
         low_pitch = pitch_range
+        high_pitch = low_pitch + pianoroll.shape[1]
     elif isinstance(pitch_range, tuple):
-        low_pitch = pitch_range[0]
+        low_pitch, high_pitch = pitch_range
     else:
         low_pitch = PITCH_RANGE[0]
-    high_pitch = low_pitch + pianoroll.shape[1]
+        high_pitch = low_pitch + pianoroll.shape[1]
     arrays = []
     if low_pitch != PITCH_RANGE[0]:
         arrays.append(np.zeros((pianoroll.shape[0], low_pitch), dtype=pianoroll.dtype))
@@ -126,8 +124,8 @@ def pianoroll2notes(
         pianoroll = np.concatenate(arrays, axis=1)
 
     # pad with zeros for the first and last events
-    padded = np.pad(pianoroll, ((1, 1), (0, 0)), "constant")
-    diff = np.diff(padded, axis=0)
+    padded = np.pad(pianoroll > 0, ((1, 1), (0, 0)), "constant")
+    diff = np.diff(padded.astype(np.int8), axis=0)
 
     pitches, note_ons = np.nonzero((diff > 0).T)
     note_offs = np.nonzero((diff < 0).T)[1]
