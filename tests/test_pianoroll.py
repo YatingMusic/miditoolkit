@@ -36,8 +36,10 @@ def test_pianoroll():
                 # Set pitch range parameters
                 pitch_range = test_set.get("pitch_range", PITCH_RANGE)
                 if "pitch_offset" in test_set:
-                    pitch_range = (max(PITCH_RANGE[0], pitch_range[0] - test_set["pitch_offset"]),
-                                   min(PITCH_RANGE[1], pitch_range[1] + test_set["pitch_offset"]))
+                    pitch_range = (
+                        max(PITCH_RANGE[0], pitch_range[0] - test_set["pitch_offset"]),
+                        min(PITCH_RANGE[1], pitch_range[1] + test_set["pitch_offset"]),
+                    )
 
                 # First pianoroll <--> notes conversion, losing overlapping notes
                 pianoroll = notes2pianoroll(track.notes, **test_set)
@@ -47,7 +49,11 @@ def test_pianoroll():
                 new_pianoroll = notes2pianoroll(new_notes, **test_set)
                 new_new_notes = pianoroll2notes(new_pianoroll, pitch_range=pitch_range)
                 if "velocity_threshold" in test_set:
-                    new_notes = [note for note in new_notes if note.velocity >= test_set["velocity_threshold"]]
+                    new_notes = [
+                        note
+                        for note in new_notes
+                        if note.velocity >= test_set["velocity_threshold"]
+                    ]
 
                 # Assert notes are all retrieved
                 assert len(new_notes) == len(
