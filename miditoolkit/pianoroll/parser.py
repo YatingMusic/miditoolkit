@@ -2,6 +2,7 @@ from copy import deepcopy
 from typing import List, Tuple, Callable, Union
 
 import numpy as np
+
 from miditoolkit import Note
 from miditoolkit.constants import PITCH_RANGE
 
