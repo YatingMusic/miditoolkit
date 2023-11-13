@@ -12,10 +12,10 @@ from .utils import pitch_padding
 # -------------------------------------------- #
 
 # color maps
-NOTE_CMAP = 'Greens'
-CHROMA_CMAP = 'magma'
-SM_CMAP = 'gray'
-PR_CMAP = 'gray'
+NOTE_CMAP = "Greens"
+CHROMA_CMAP = "magma"
+SM_CMAP = "gray"
+PR_CMAP = "gray"
 
 # colors
 WHITE_KEY_SATUR = 0.96
@@ -29,33 +29,40 @@ YLABEL_FONT_SIZE = 5
 #     ex: set C4 to 60(5th) means set 0(0th) to C-1
 OFFSET_OCTAVE = -1
 PITCH_TO_NAME = {
-    0: 'C', 1: 'C#',
-    2: 'D', 3: 'D#',
-    4: 'E', 5: 'F',
-    6: 'F#', 7: 'G',
-    8: 'G#', 9: 'A',
-    10: 'A#', 11: 'B'}
+    0: "C",
+    1: "C#",
+    2: "D",
+    3: "D#",
+    4: "E",
+    5: "F",
+    6: "F#",
+    7: "G",
+    8: "G#",
+    9: "A",
+    10: "A#",
+    11: "B",
+}
 
 
 # -------------------------------------------- #
 # Main Functions
 # -------------------------------------------- #
 def plot(
-        pianoroll,
-        note_range=(0, 128),
-        beat_resolution=24,
-        downbeats=4,
-        background_layout='pianoroll',
-        grid_layout='x',
-        xtick='downbeat',
-        ytick='number',
-        ytick_interval=12,
-        xtick_interval=1,
-        x_range=None,
-        y_range=None,
-        figsize=None,
-        dpi=300):
-
+    pianoroll,
+    note_range=(0, 128),
+    beat_resolution=24,
+    downbeats=4,
+    background_layout="pianoroll",
+    grid_layout="x",
+    xtick="downbeat",
+    ytick="number",
+    ytick_interval=12,
+    xtick_interval=1,
+    x_range=None,
+    y_range=None,
+    figsize=None,
+    dpi=300,
+):
     """Plot Pianoroll
     Parameters
     ----------
@@ -106,7 +113,7 @@ def plot(
     st, ed = note_range
     sz_time, sz_pitch = pianoroll.shape
     if (ed - st) != sz_pitch:
-        raise ValueError('Invalid note_range')
+        raise ValueError("Invalid note_range")
     pianoroll = pitch_padding(pianoroll, note_range)
 
     # set display range
@@ -125,20 +132,8 @@ def plot(
     plot_note_entries(ax, to_plot)
 
     # plot and set ticks
-    plot_xticks(
-        ax,
-        xtick,
-        xtick_interval,
-        sz_time,
-        beat_resolution,
-        downbeats)
-    plot_yticks(
-        ax,
-        ytick,
-        ytick_interval,
-        sz_time,
-        beat_resolution,
-        downbeats)
+    plot_xticks(ax, xtick, xtick_interval, sz_time, beat_resolution, downbeats)
+    plot_yticks(ax, ytick, ytick_interval, sz_time, beat_resolution, downbeats)
 
     # plot grid
     plot_grid(ax, grid_layout)
@@ -151,16 +146,16 @@ def plot(
 
 
 def plot_chroma(
-        chroma,
-        beat_resolution=24,
-        downbeats=4,
-        xtick='downbeat',
-        ytick='note',
-        x_range=None,
-        xtick_interval=1,
-        figsize=None,
-        dpi=300):
-
+    chroma,
+    beat_resolution=24,
+    downbeats=4,
+    xtick="downbeat",
+    ytick="note",
+    x_range=None,
+    xtick_interval=1,
+    figsize=None,
+    dpi=300,
+):
     """Plot Chromagram
     Parameters
     ----------
@@ -198,55 +193,44 @@ def plot_chroma(
     sz_time, sz_pitch = chroma.shape
     to_plot = chroma.T
     if sz_pitch != 12:
-        raise ValueError('Invalid Input: the dim of pitch should be 12')
+        raise ValueError("Invalid Input: the dim of pitch should be 12")
 
     # set range
     if x_range is None:
         x_range = (0, sz_time)
 
     # plot xticks
-    plot_xticks(
-        ax,
-        xtick,
-        xtick_interval,
-        sz_time,
-        beat_resolution,
-        downbeats)
+    plot_xticks(ax, xtick, xtick_interval, sz_time, beat_resolution, downbeats)
 
     # plot yticks
     yticks = np.arange(0, 12)
     ax.set_yticks(yticks)
-    if ytick == 'number':
+    if ytick == "number":
         ax.set_yticklabels(yticks, fontsize=YLABEL_FONT_SIZE)
-    elif ytick == 'note':
+    elif ytick == "note":
         yticks_name = [PITCH_TO_NAME[k % 12] for k in yticks]
         ax.set_yticklabels(yticks_name, fontsize=YLABEL_FONT_SIZE)
     else:
-        ax.tick_params(axis='y', width=0)
+        ax.tick_params(axis="y", width=0)
         ax.set_yticklabels([])
 
     # display
     ax.imshow(
         to_plot,
-        aspect='auto',
+        aspect="auto",
         cmap=CHROMA_CMAP,
         vmin=np.min(to_plot),
         vmax=np.max(to_plot),
-        origin='lower',
-        interpolation='none')
+        origin="lower",
+        interpolation="none",
+    )
     # set range
     pylab.xlim(x_range)
 
     return fig, ax
 
 
-def plot_heatmap(
-        to_plot,
-        tick_interval=None,
-        origin='upper',
-        figsize=None,
-        dpi=300):
-
+def plot_heatmap(to_plot, tick_interval=None, origin="upper", figsize=None, dpi=300):
     """Plot Similarity Matrix
     Parameters
     ----------
@@ -278,7 +262,8 @@ def plot_heatmap(
         vmin=np.min(to_plot),
         vmax=np.max(to_plot),
         origin=origin,
-        interpolation='none')
+        interpolation="none",
+    )
 
     # plot ticks
     sx, sy = to_plot.shape
@@ -293,70 +278,62 @@ def plot_heatmap(
     ax.set_yticks(yticks)
     ax.set_yticklabels(yticks, fontsize=XLABEL_FONT_SIZE)
 
-    ax.xaxis.set_tick_params(labeltop='on', top=True)  # show labs on top
+    ax.xaxis.set_tick_params(labeltop="on", top=True)  # show labs on top
     return fig, ax
+
 
 # -------------------------------------------- #
 # Auxiliary Tools
 # -------------------------------------------- #
 
 
-def plot_grid(
-        ax,
-        layout,
-        which='minor',
-        color='k'):
+def plot_grid(ax, layout, which="minor", color="k"):
     # always using 'minor' tick to plot grid
     # argumens check
-    if layout not in ['x', 'y', 'both', None]:
-        raise ValueError('Unkown Grid layout: %s' % layout)
+    if layout not in ["x", "y", "both", None]:
+        raise ValueError("Unkown Grid layout: %s" % layout)
 
     # grid Show
-    if layout in ['x', 'both']:
-        ax.grid(axis='x', color=color, which=which, linestyle='-', linewidth=.2, alpha=0.5)
-    if layout in ['y', 'both']:
-        ax.grid(axis='y', color=color, which=which, linestyle='-', linewidth=.2, alpha=0.75)
+    if layout in ["x", "both"]:
+        ax.grid(
+            axis="x", color=color, which=which, linestyle="-", linewidth=0.2, alpha=0.5
+        )
+    if layout in ["y", "both"]:
+        ax.grid(
+            axis="y", color=color, which=which, linestyle="-", linewidth=0.2, alpha=0.75
+        )
 
 
-def plot_yticks(
-        ax,
-        ytick,
-        ytick_interval,
-        max_tick,
-        beat_resolution,
-        downbeats):
+def plot_yticks(ax, ytick, ytick_interval, max_tick, beat_resolution, downbeats):
     # tick arrangement
     # - ytick, minor for grid
     yticks = np.arange(0.5, 128.5)
     ax.set_yticks(yticks, minor=True)
-    ax.tick_params(axis='y', which='minor', width=0)
+    ax.tick_params(axis="y", which="minor", width=0)
 
     # - yticks & labels
     yticks_key = np.arange(0, 128, ytick_interval)
     ax.set_yticks(yticks_key)
 
-    if ytick == 'number':
+    if ytick == "number":
         ax.set_yticklabels(yticks_key, fontsize=YLABEL_FONT_SIZE)
-    elif ytick == 'note':
+    elif ytick == "note":
         yticks_name = []
         for k in yticks_key:
-            lab = ''
+            lab = ""
             if k % 12 in PITCH_TO_NAME:
-                lab = '%2s%s' % (str(PITCH_TO_NAME[k % 12]), str(k // 12 + OFFSET_OCTAVE))
+                lab = "%2s%s" % (
+                    str(PITCH_TO_NAME[k % 12]),
+                    str(k // 12 + OFFSET_OCTAVE),
+                )
             yticks_name.append(lab)
         ax.set_yticklabels(yticks_name, fontsize=YLABEL_FONT_SIZE)
     else:
-        ax.tick_params(axis='y', which='major', width=0)
+        ax.tick_params(axis="y", which="major", width=0)
         ax.set_yticklabels([])
 
 
-def plot_xticks(
-        ax,
-        xtick,
-        xtick_interval,
-        max_tick,
-        beat_resolution,
-        downbeats):
+def plot_xticks(ax, xtick, xtick_interval, max_tick, beat_resolution, downbeats):
     # tick arrangement
     # - xtick, minor for beat
     xticks_beat = np.arange(0, max_tick, beat_resolution)
@@ -375,41 +352,44 @@ def plot_xticks(
             elif downbeats.dtype == bool:
                 xticks_downbeats = np.where(downbeats == True)
             else:
-                raise ValueError('Unkown downbeats type: %s' % downbeats)
+                raise ValueError("Unkown downbeats type: %s" % downbeats)
         ax.set_xticks(xticks_downbeats)
-        ax.grid(axis='x', color='k', which='major', linestyle='-', linewidth=.5, alpha=1.0)
+        ax.grid(
+            axis="x", color="k", which="major", linestyle="-", linewidth=0.5, alpha=1.0
+        )
     else:
-        ax.tick_params(axis='x', which='major', width=0)
+        ax.tick_params(axis="x", which="major", width=0)
     ax.set_xticklabels([])
 
     # - xticks & labels
-    if xtick == 'beat':
+    if xtick == "beat":
         xlabels_beat = np.array([str(tick // beat_resolution) for tick in xticks_beat])
         xlabels_beat = _label_selector(xlabels_beat, xtick_interval)
-        ax.set_xticklabels(xlabels_beat, minor=True, fontsize=XLABEL_FONT_SIZE, rotation=-90)
-    elif xtick == 'tick':
+        ax.set_xticklabels(
+            xlabels_beat, minor=True, fontsize=XLABEL_FONT_SIZE, rotation=-90
+        )
+    elif xtick == "tick":
         xlabels_tick = np.array([str(tick) for tick in xticks_beat])
         xlabels_tick = _label_selector(xlabels_tick, xtick_interval)
-        ax.set_xticklabels(xlabels_tick, minor=True, fontsize=XLABEL_FONT_SIZE, rotation=-90)
-    elif xtick == 'downbeat':
-        if xtick == 'downbeat' and downbeats is None:
-            raise ValueError('Invalid Input: downbeats is None!')
+        ax.set_xticklabels(
+            xlabels_tick, minor=True, fontsize=XLABEL_FONT_SIZE, rotation=-90
+        )
+    elif xtick == "downbeat":
+        if xtick == "downbeat" and downbeats is None:
+            raise ValueError("Invalid Input: downbeats is None!")
         xlabels_dwonbeats = np.array([str(idx) for idx in range(len(xticks_downbeats))])
         xlabels_dwonbeats = _label_selector(xlabels_dwonbeats, xtick_interval)
         ax.set_xticklabels(xlabels_dwonbeats, fontsize=XLABEL_FONT_SIZE, rotation=-90)
     elif xtick is None:
         ax.set_xticklabels([])
-        ax.tick_params(axis='x', which='minor', width=0)
-        ax.tick_params(axis='x', which='major', width=0)
+        ax.tick_params(axis="x", which="minor", width=0)
+        ax.tick_params(axis="x", which="major", width=0)
     else:
-        raise ValueError('Unkown xtick type: %s' % xtick)
+        raise ValueError("Unkown xtick type: %s" % xtick)
 
-def plot_background(
-        ax,
-        layout,
-        canvas):
 
-    if layout == 'pianoroll':
+def plot_background(ax, layout, canvas):
+    if layout == "pianoroll":
         all_black_index = []
         for n in range(11):
             all_black_index.extend(list(map(lambda x: x + 12 * n, [1, 3, 6, 8, 10])))
@@ -419,21 +399,20 @@ def plot_background(
 
         ax.imshow(
             pianoroll_bg,
-            aspect='auto',
+            aspect="auto",
             cmap=PR_CMAP,
             vmin=0,
             vmax=1,
-            origin='lower',
-            interpolation='none')
-    elif layout == 'blank':
+            origin="lower",
+            interpolation="none",
+        )
+    elif layout == "blank":
         pass
     else:
-        raise ValueError('Unkown background layout: %s' % layout)
+        raise ValueError("Unkown background layout: %s" % layout)
 
-def plot_note_entries(
-        ax,
-        to_plot):
 
+def plot_note_entries(ax, to_plot):
     # for better color percetion
     color_shift = 80
 
@@ -442,16 +421,17 @@ def plot_note_entries(
     ax.imshow(
         masked_data,
         cmap=NOTE_CMAP,
-        aspect='auto',
+        aspect="auto",
         vmin=0,
         vmax=127 + color_shift,
-        origin='lower',
-        interpolation='none')
+        origin="lower",
+        interpolation="none",
+    )
 
 
 def _label_selector(labels, skip):
     if skip > 1:
         for idx in range(len(labels)):
             if idx % skip:
-                labels[idx] = ''
+                labels[idx] = ""
     return labels

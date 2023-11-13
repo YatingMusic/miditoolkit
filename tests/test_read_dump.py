@@ -5,19 +5,23 @@
 """
 
 from pathlib import Path
+import shutil
 
 from miditoolkit import MidiFile
 from tqdm import tqdm
 
 
 def test_load_dump():
-    midi_paths = list(Path("tests", "test_cases").glob("**/*.mid"))
+    midi_paths = list(Path("tests", "testcases").glob("**/*.mid"))
+    out_path = Path("tests", "tmp", "load_dump")
+    out_path.mkdir(parents=True, exist_ok=True)
+
     for path in tqdm(midi_paths, desc="Checking midis load/save"):
         midi = MidiFile(path)
         # Writing it unchanged
-        midi.dump(path.name)
+        midi.dump(out_path / path.name)
         # Loading it back
-        midi2 = MidiFile(path.name)
+        midi2 = MidiFile(out_path / path.name)
 
         # Sorting the notes, as after dump the order might have changed
         for track1, track2 in zip(midi.instruments, midi2.instruments):
@@ -26,6 +30,9 @@ def test_load_dump():
 
         assert midi == midi2
 
+    # deletes tmp directory after tests
+    shutil.rmtree(out_path)
+
 
 if __name__ == "__main__":
-    test_merge_tracks()
+    test_load_dump()

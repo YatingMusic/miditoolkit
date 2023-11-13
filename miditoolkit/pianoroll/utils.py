@@ -18,8 +18,9 @@ def pitch_padding(pianoroll, pitch_range, padding_range=(0, 127), value=0):
     res = np.pad(
         pianoroll,
         [(0, 0), (st - st_pad, ed_pad - ed + 1)],
-        mode='constant',
-        constant_values=value)
+        mode="constant",
+        constant_values=value,
+    )
     return res
 
 
