@@ -435,7 +435,7 @@ class MidiFile(object):
         add_ts = True
         ts_list = []
         if self.time_signature_changes:
-            add_ts = min([ts.time for ts in self.time_signature_changes]) > 0.0
+            add_ts = min([ts.time for ts in self.time_signature_changes]) > 0
         if add_ts:
             ts_list.append(
                 mido.MetaMessage("time_signature", time=0, numerator=4, denominator=4)
@@ -489,21 +489,22 @@ class MidiFile(object):
             )
 
         # crop segment
+        start_tick, end_tick = 0, 0
         if segment:
             start_tick, end_tick = segment
-            ts_list = _include_meta_events_within_range(
+            ts_list = _include_meta_events_within_tick_range(
                 ts_list, start_tick, end_tick, shift=shift, front=True
             )
-            tempo_list = _include_meta_events_within_range(
+            tempo_list = _include_meta_events_within_tick_range(
                 tempo_list, start_tick, end_tick, shift=shift, front=True
             )
-            lyrics_list = _include_meta_events_within_range(
+            lyrics_list = _include_meta_events_within_tick_range(
                 lyrics_list, start_tick, end_tick, shift=shift, front=False
             )
-            markers_list = _include_meta_events_within_range(
+            markers_list = _include_meta_events_within_tick_range(
                 markers_list, start_tick, end_tick, shift=shift, front=False
             )
-            key_list = _include_meta_events_within_range(
+            key_list = _include_meta_events_within_tick_range(
                 key_list, start_tick, end_tick, shift=shift, front=True
             )
         meta_track = ts_list + tempo_list + lyrics_list + markers_list + key_list
@@ -586,7 +587,6 @@ class MidiFile(object):
                             value=127,
                         )
                     )
-
                     # append for pedal-off (0)
                     cc_list.append(
                         mido.Message(
@@ -597,13 +597,15 @@ class MidiFile(object):
                             value=0,
                         )
                     )
-                    # print(cc_list[-2:])
 
             if segment:
-                bend_list = _include_meta_events_within_range(
+                cc_list = _include_meta_events_within_tick_range(
+                    cc_list, start_tick, end_tick, shift=shift, front=False
+                )
+                bend_list = _include_meta_events_within_tick_range(
                     bend_list, start_tick, end_tick, shift=shift, front=True
                 )
-            track += bend_list + cc_list  #
+            track += bend_list + cc_list
 
             # Add all note events
             for note in instrument.notes:
@@ -686,9 +688,21 @@ def _is_note_within_tick_range(
     note: Note,
     start_tick: int,
     end_tick: int,
-    shift: bool = True,
+    shift: bool = False,
     adapt_note_times: bool = False,
 ) -> bool:
+    r"""
+
+    Args:
+        note: note to check.
+        start_tick: starting tick.
+        end_tick: ending tick.
+        shift: if True, will shift the note's start and end times by `start_tick`.
+        adapt_note_times: if True, will cut the start and end note times to fit within the range.
+
+    Returns: whether the note is within the time range.
+
+    """
     #             |              |
     #    ****     |  ***       **|*     *****
     tmp_st = max(start_tick, note.start)
@@ -705,11 +719,20 @@ def _is_note_within_tick_range(
     return True
 
 
-def _include_meta_events_within_range(
-    events, st: int, ed: int, shift: bool = True, front: bool = True
+def _include_meta_events_within_tick_range(
+    events, start_tick: int, end_tick: int, shift: bool = False, front: bool = True
 ):
-    """
-    For time, key signature
+    r"""
+
+    Args:
+        events: meta messages to check.
+        start_tick: starting tick.
+        end_tick: ending tick.
+        shift: if True, will shift the note's start and end times by `start_tick`.
+        front: will make sure the message coming last before the `start_tick` is kept and its time set at `start_tick`.
+
+    Returns: list of meta messages within the given tick range
+
     """
     proc_events = []
     num = len(events)
@@ -720,9 +743,9 @@ def _include_meta_events_within_range(
     i = num - 1
     while i >= 0:
         event = events[i]
-        if event.time < st:
+        if event.time < start_tick:
             break
-        if event.time < ed:
+        if event.time < end_tick:
             proc_events.append(event)
         i -= 1
 
@@ -730,21 +753,19 @@ def _include_meta_events_within_range(
     if front and (i >= 0):
         if not proc_events:
             proc_events = [events[i]]
-        elif proc_events[-1].time != st:
+        elif proc_events[-1].time != start_tick:
             proc_events.append(events[i])
-        else:
-            pass
+        proc_events[-1].time = start_tick
 
     # reverse
     proc_events = proc_events[::-1]
 
     # shift
-    result = []
-    # shift = st if shift else 0
-    for event in proc_events:
-        event.time -= st
-        event.time = int(max(event.time, 0))
-        result.append(event)
+    if shift:
+        for event in proc_events:
+            event.time -= start_tick
+            event.time = int(max(event.time, 0))
+
     return proc_events
 
 
