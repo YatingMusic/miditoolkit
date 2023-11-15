@@ -327,7 +327,7 @@ class MidiFile(object):
         return instruments
 
     def get_tick_to_time_mapping(self):
-        return _get_tick_to_time_mapping(
+        return _get_tick_to_second_mapping(
             self.ticks_per_beat, self.max_tick, self.tempo_changes
         )
 
@@ -473,8 +473,8 @@ class MidiFile(object):
 
         # 3. Lyrics
         lyrics_list = []
-        for l in self.lyrics:
-            lyrics_list.append(mido.MetaMessage("lyrics", time=l.time, text=l.text))
+        for lyr in self.lyrics:
+            lyrics_list.append(mido.MetaMessage("lyrics", time=lyr.time, text=lyr.text))
 
         # 4. Markers
         markers_list = []
@@ -607,34 +607,33 @@ class MidiFile(object):
 
             # Add all note events
             for note in instrument.notes:
-                if segment:
-                    note = _check_note_within_range(
-                        note, start_tick, end_tick, shift=True
+                if segment and not _is_note_within_tick_range(
+                        note, start_tick, end_tick, shift, True
+                ):
+                    continue
+                track.append(
+                    mido.Message(
+                        "note_on",
+                        time=note.start,
+                        channel=channel,
+                        note=note.pitch,
+                        velocity=note.velocity,
+                        end=note.end,
                     )
-                if note:
-                    track.append(
-                        mido.Message(
-                            "note_on",
-                            time=note.start,
-                            channel=channel,
-                            note=note.pitch,
-                            velocity=note.velocity,
-                            end=note.end,
-                        )
+                )
+                # Also need a note-off event
+                track.append(
+                    mido.Message(
+                        "note_off",
+                        time=note.end,
+                        channel=channel,
+                        note=note.pitch,
+                        velocity=note.velocity,
                     )
-                    # Also need a note-off event (note on with velocity 0)
-                    track.append(
-                        mido.Message(
-                            "note_off",
-                            time=note.end,
-                            channel=channel,
-                            note=note.pitch,
-                            velocity=note.velocity,
-                        )
-                    )
+                )
             track = sorted(track, key=functools.cmp_to_key(event_compare))
 
-            memo = 0
+            """memo = 0
             i = 0
             while i < len(track):
                 # print(i)
@@ -647,7 +646,7 @@ class MidiFile(object):
                         memo = track[i].value
                         i += 1
                 else:
-                    i += 1
+                    i += 1"""
 
             # i = 0
             # while i <= len(cc_list)-1:
@@ -683,21 +682,32 @@ class MidiFile(object):
             midi_parsed.save(file=file)
 
 
-def _check_note_within_range(note, st, ed, shift=True):
-    tmp_st = max(st, note.start)
-    tmp_ed = max(st, min(note.end, ed))
-
+def _is_note_within_tick_range(
+    note: Note,
+    start_tick: int,
+    end_tick: int,
+    shift: bool = True,
+    adapt_note_times: bool = False,
+) -> bool:
+    #             |              |
+    #    ****     |  ***       **|*     *****
+    tmp_st = max(start_tick, note.start)
+    tmp_ed = max(start_tick, min(note.end, end_tick))
     if (tmp_ed - tmp_st) <= 0:
-        return None
+        return False
+
     if shift:
-        tmp_st -= st
-        tmp_ed -= st
-    note.start = int(tmp_st)
-    note.end = int(tmp_ed)
-    return note
+        tmp_st -= start_tick
+        tmp_ed -= start_tick
+    if adapt_note_times:
+        note.start = tmp_st
+        note.end = tmp_ed
+    return True
 
 
-def _include_meta_events_within_range(events, st, ed, shift=True, front=True):
+def _include_meta_events_within_range(
+    events, st: int, ed: int, shift: bool = True, front: bool = True
+):
     """
     For time, key signature
     """
@@ -738,25 +748,15 @@ def _include_meta_events_within_range(events, st, ed, shift=True, front=True):
     return proc_events
 
 
-def _find_nearest_np(array, value):
-    return (np.abs(array - value)).argmin()
+def _get_tick_eq_of_second(sec: Union[float, int], tick_to_time: np.ndarray) -> int:
+    return int((np.abs(tick_to_time - sec)).argmin())
 
 
-def _get_tick_index_by_seconds(sec, tick_to_time):
-    if not isinstance(sec, float):
-        raise ValueError("Seconds should be float")
-
-    if isinstance(sec, list) or isinstance(sec, tuple):
-        return [_find_nearest_np(tick_to_time, s) for s in sec]
-    else:
-        return _find_nearest_np(tick_to_time, sec)
-
-
-def _get_tick_to_time_mapping(ticks_per_beat, max_tick, tempo_changes):
+def _get_tick_to_second_mapping(
+    ticks_per_beat: int, max_tick: int, tempo_changes: Sequence[TempoChange]
+) -> np.ndarray:
     tick_to_time = np.zeros(max_tick + 1)
     num_tempi = len(tempo_changes)
-
-    fianl_tick = max_tick
     acc_time = 0
 
     for idx in range(num_tempi):
@@ -768,9 +768,9 @@ def _get_tick_to_time_mapping(ticks_per_beat, max_tick, tempo_changes):
         seconds_per_tick = seconds_per_beat / float(ticks_per_beat)
 
         # set end tick of interval
-        end_tick = tempo_changes[idx + 1].time if (idx + 1) < num_tempi else fianl_tick
+        end_tick = tempo_changes[idx + 1].time if (idx + 1) < num_tempi else max_tick
 
-        # wrtie interval
+        # write interval
         ticks = np.arange(end_tick - start_tick + 1)
         tick_to_time[start_tick : end_tick + 1] = acc_time + seconds_per_tick * ticks
         acc_time = tick_to_time[end_tick]
