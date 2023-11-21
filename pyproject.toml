@@ -1,0 +1,55 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "miditoolkit"
+dynamic = ["version"]
+description = "A python package for working with MIDI data files."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.7.0"
+authors = [
+    { name = "wayne391", email = "s101062219@gmail.com" },
+]
+keywords = [
+    "midi",
+    "mir",
+    "music",
+]
+classifiers = [
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Multimedia :: Sound/Audio :: MIDI",
+]
+dependencies = [
+    "matplotlib",
+    "mido >= 1.1.16",
+    "numpy >= 1.19",
+]
+
+[project.optional-dependencies]
+tests = [
+    "pytest-cov",
+    "pytest-xdist[psutil]",
+    "setuptools",
+    "tqdm",
+]
+
+[project.urls]
+Homepage = "https://github.com/YatingMusic/miditoolkit"
+
+[tool.hatch.version]
+path = "miditoolkit/__init__.py"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/miditoolkit",
+]
