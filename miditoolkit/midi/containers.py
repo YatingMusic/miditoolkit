@@ -1,6 +1,6 @@
 import re
 from dataclasses import dataclass
-from typing import List, Union
+from typing import List, Optional, Union
 
 
 @dataclass
@@ -270,10 +270,10 @@ class Instrument:
         program: int,
         is_drum: bool = False,
         name: str = "",
-        notes: List[Note] = None,
-        pitch_bends: List[PitchBend] = None,
-        control_changes: List[ControlChange] = None,
-        pedals: List[Pedal] = None,
+        notes: Optional[List[Note]] = None,
+        pitch_bends: Optional[List[PitchBend]] = None,
+        control_changes: Optional[List[ControlChange]] = None,
+        pedals: Optional[List[Pedal]] = None,
     ):
         """Create the Instrument."""
         self.program = program
@@ -287,16 +287,12 @@ class Instrument:
     def remove_invalid_notes(self, verbose: bool = True):
         """Removes any notes whose end time is before or at their start time."""
         # Crete a list of all invalid notes
-        notes_to_delete = []
-        for note in self.notes:
-            if note.end <= note.start:
-                notes_to_delete.append(note)
+        notes_to_delete = [note for note in self.notes if note.end <= note.start]
         if verbose:
             if len(notes_to_delete):
-                print("\nInvalid notes:")
-                print(notes_to_delete, "\n\n")
+                print("\nInvalid notes:\n", notes_to_delete, "\n\n")  # noqa: T201
             else:
-                print("no invalid notes found")
+                print("no invalid notes found")  # noqa: T201
             return True
 
         # Remove the notes found
@@ -357,7 +353,7 @@ def _key_name_to_key_number(key_string: str):
     # Match provided key string
     result = re.match(pattern, key_string)
     if result is None:
-        raise ValueError("Supplied key {} is not valid.".format(key_string))
+        raise ValueError(f"Supplied key {key_string} is not valid.")
     # Convert result to dictionary
     result = result.groupdict()
 

@@ -1,4 +1,13 @@
 target-version = "py37"
 extend-select = [
+    "B",
+    "ERA",
     "I",
+    "PERF",
+    "RUF013",
+    "T",
+    "UP",
 ]
+
+[extend-per-file-ignores]
+"miditoolkit/midi/parser.py" = ["PERF401"]

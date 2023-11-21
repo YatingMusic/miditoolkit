@@ -32,7 +32,6 @@ def test_pianoroll():
             # notes2pianoroll has a "last income priority" logic, for which if a notes is occurs
             # when another one of the same pitch is already being played, this new note will be
             # represented and will end the previous one (if they have different velocities).
-            # deduplicate_notes(track.notes)
 
             for test_set in test_sets:
                 # Set pitch range parameters
@@ -63,9 +62,6 @@ def test_pianoroll():
                 ), "Number of notes changed in pianoroll conversion"
                 for note1, note2 in zip(new_notes, new_new_notes):
                     # We don't test the resampling factor as it might later the number of notes
-                    # if "resample_factor" in test_set:
-                    #    note1.start = int(round(note1.start * test_set["resample_factor"]))
-                    #    note1.end = int(round(note1.end * test_set["resample_factor"]))
                     assert (
                         note1 == note2
                     ), "Notes before and after pianoroll conversion are not the same"

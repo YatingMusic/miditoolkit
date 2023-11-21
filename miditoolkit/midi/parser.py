@@ -1,7 +1,7 @@
 import collections
 import functools
 from pathlib import Path
-from typing import Sequence, Tuple, Union
+from typing import Optional, Sequence, Tuple, Union
 
 import mido
 import numpy as np
@@ -19,19 +19,19 @@ from .containers import (
     TimeSignature,
 )
 
-DEFAULT_BPM = int(120)
+DEFAULT_BPM = 120
 
 # We "hack" mido's Note_on messages checks to allow to add an "end" attribute, that
 # will serve us to sort the messages in the good order when writing a MIDI file.
-new_set = set(list(mido.messages.SPEC_BY_TYPE["note_on"]["attribute_names"]) + ["end"])
+new_set = {"end", *mido.messages.SPEC_BY_TYPE["note_on"]["attribute_names"]}
 mido.messages.SPEC_BY_TYPE["note_on"]["attribute_names"] = new_set
 mido.messages.checks._CHECKS["end"] = mido.messages.checks.check_time
 
 
-class MidiFile(object):
+class MidiFile:
     def __init__(
         self,
-        filename: Union[Path, str] = None,
+        filename: Optional[Union[Path, str]] = None,
         file=None,
         ticks_per_beat: int = 480,
         clip: bool = False,
@@ -93,7 +93,7 @@ class MidiFile(object):
     @staticmethod
     def _convert_delta_to_cumulative(mido_obj):
         for track in mido_obj.tracks:
-            tick = int(0)
+            tick = 0
             for event in track:
                 event.time += tick
                 tick = event.time
@@ -221,8 +221,7 @@ class MidiFile(object):
 
         for track_idx, track in enumerate(midi_data.tracks):
             # Keep track of last note on location:
-            # key = (instrument, note),
-            # value = (note-on tick, velocity)
+            # key = (instrument, note), value = (note-on tick, velocity)
             last_note_on = collections.defaultdict(list)
             # Keep track of which instrument is playing in each channel
             # initialize to program 0 for all channels
@@ -336,14 +335,14 @@ class MidiFile(object):
 
     def __str__(self):
         output_list = [
-            "ticks per beat: {}".format(self.ticks_per_beat),
-            "max tick: {}".format(self.max_tick),
-            "tempo changes: {}".format(len(self.tempo_changes)),
-            "time sig: {}".format(len(self.time_signature_changes)),
-            "key sig: {}".format(len(self.key_signature_changes)),
-            "markers: {}".format(len(self.markers)),
-            "lyrics: {}".format(bool(len(self.lyrics))),
-            "instruments: {}".format(len(self.instruments)),
+            f"ticks per beat: {self.ticks_per_beat}",
+            f"max tick: {self.max_tick}",
+            f"tempo changes: {len(self.tempo_changes)}",
+            f"time sig: {len(self.time_signature_changes)}",
+            f"key sig: {len(self.key_signature_changes)}",
+            f"markers: {len(self.markers)}",
+            f"lyrics: {bool(len(self.lyrics))}",
+            f"instruments: {len(self.instruments)}",
         ]
         output_str = "\n".join(output_list)
         return output_str
@@ -370,11 +369,11 @@ class MidiFile(object):
 
     def dump(
         self,
-        filename: Union[str, Path] = None,
+        filename: Optional[Union[str, Path]] = None,
         file=None,
-        segment: Tuple[int, int] = None,
+        segment: Optional[Tuple[int, int]] = None,
         shift=True,
-        instrument_idx: int = None,
+        instrument_idx: Optional[int] = None,
         charset: str = "latin1",
     ):
         # comparison function
@@ -412,7 +411,7 @@ class MidiFile(object):
             return 0
 
         if (filename is None) and (file is None):
-            raise IOError("please specify the output.")
+            raise OSError("please specify the output.")
 
         if instrument_idx is None:
             pass
@@ -427,9 +426,7 @@ class MidiFile(object):
         midi_parsed = mido.MidiFile(ticks_per_beat=self.ticks_per_beat, charset=charset)
 
         # Create track 0 with timing information
-        # meta_track = mido.MidiTrack()
 
-        # -- meta track -- #
         # 1. Time signature
         # add default
         add_ts = True
@@ -634,36 +631,6 @@ class MidiFile(object):
                     )
                 )
             track = sorted(track, key=functools.cmp_to_key(event_compare))
-
-            """memo = 0
-            i = 0
-            while i < len(track):
-                # print(i)
-                # print(len(track))
-                if track[i].type == "control_change":
-                    tmp = track[i].value
-                    if tmp == memo:
-                        track.pop(i)
-                    else:
-                        memo = track[i].value
-                        i += 1
-                else:
-                    i += 1"""
-
-            # i = 0
-            # while i <= len(cc_list)-1:
-            #    assert cc_list[i].value == 127
-            #    if cc_list[i].time < track[0].time:
-            #        track.insert(0, cc_list[i])
-            #        track.insert(0, cc_list[i+1])
-            #        i = i+2
-            #    else:
-            #        for j in range(len(track)-1):
-            #            if track[j].time <= cc_list[i].time < track[j+1].time:
-            #                track.insert(j+1, cc_list[i])
-            #                track.insert(j+2, cc_list[i+1])
-            #                i = i+2
-            #                break
 
             # Finally, add in an end of track event
             track.append(mido.MetaMessage("end_of_track", time=track[-1].time + 1))
