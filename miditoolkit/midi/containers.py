@@ -1,6 +1,6 @@
 import re
 from dataclasses import dataclass
-from typing import List, Union
+from typing import List, Optional, Union
 
 
 @dataclass
@@ -270,10 +270,10 @@ class Instrument:
         program: int,
         is_drum: bool = False,
         name: str = "",
-        notes: List[Note] = None,
-        pitch_bends: List[PitchBend] = None,
-        control_changes: List[ControlChange] = None,
-        pedals: List[Pedal] = None,
+        notes: Optional[List[Note]] = None,
+        pitch_bends: Optional[List[PitchBend]] = None,
+        control_changes: Optional[List[ControlChange]] = None,
+        pedals: Optional[List[Pedal]] = None,
     ):
         """Create the Instrument."""
         self.program = program

@@ -1,7 +1,7 @@
 import collections
 import functools
 from pathlib import Path
-from typing import Sequence, Tuple, Union
+from typing import Optional, Sequence, Tuple, Union
 
 import mido
 import numpy as np
@@ -31,7 +31,7 @@ mido.messages.checks._CHECKS["end"] = mido.messages.checks.check_time
 class MidiFile:
     def __init__(
         self,
-        filename: Union[Path, str] = None,
+        filename: Optional[Union[Path, str]] = None,
         file=None,
         ticks_per_beat: int = 480,
         clip: bool = False,
@@ -370,11 +370,11 @@ class MidiFile:
 
     def dump(
         self,
-        filename: Union[str, Path] = None,
+        filename: Optional[Union[str, Path]] = None,
         file=None,
-        segment: Tuple[int, int] = None,
+        segment: Optional[Tuple[int, int]] = None,
         shift=True,
-        instrument_idx: int = None,
+        instrument_idx: Optional[int] = None,
         charset: str = "latin1",
     ):
         # comparison function
