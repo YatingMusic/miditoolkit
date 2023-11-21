@@ -221,8 +221,7 @@ class MidiFile:
 
         for track_idx, track in enumerate(midi_data.tracks):
             # Keep track of last note on location:
-            # key = (instrument, note),
-            # value = (note-on tick, velocity)
+            # key = (instrument, note), value = (note-on tick, velocity)
             last_note_on = collections.defaultdict(list)
             # Keep track of which instrument is playing in each channel
             # initialize to program 0 for all channels
@@ -427,9 +426,7 @@ class MidiFile:
         midi_parsed = mido.MidiFile(ticks_per_beat=self.ticks_per_beat, charset=charset)
 
         # Create track 0 with timing information
-        # meta_track = mido.MidiTrack()
 
-        # -- meta track -- #
         # 1. Time signature
         # add default
         add_ts = True
@@ -634,36 +631,6 @@ class MidiFile:
                     )
                 )
             track = sorted(track, key=functools.cmp_to_key(event_compare))
-
-            """memo = 0
-            i = 0
-            while i < len(track):
-                # print(i)
-                # print(len(track))
-                if track[i].type == "control_change":
-                    tmp = track[i].value
-                    if tmp == memo:
-                        track.pop(i)
-                    else:
-                        memo = track[i].value
-                        i += 1
-                else:
-                    i += 1"""
-
-            # i = 0
-            # while i <= len(cc_list)-1:
-            #    assert cc_list[i].value == 127
-            #    if cc_list[i].time < track[0].time:
-            #        track.insert(0, cc_list[i])
-            #        track.insert(0, cc_list[i+1])
-            #        i = i+2
-            #    else:
-            #        for j in range(len(track)-1):
-            #            if track[j].time <= cc_list[i].time < track[j+1].time:
-            #                track.insert(j+1, cc_list[i])
-            #                track.insert(j+2, cc_list[i+1])
-            #                i = i+2
-            #                break
 
             # Finally, add in an end of track event
             track.append(mido.MetaMessage("end_of_track", time=track[-1].time + 1))
