@@ -6,10 +6,10 @@
 
 from pathlib import Path
 
-from miditoolkit import MidiFile
-from miditoolkit.constants import PITCH_RANGE
 from tqdm import tqdm
 
+from miditoolkit import MidiFile
+from miditoolkit.constants import PITCH_RANGE
 from miditoolkit.pianoroll import notes2pianoroll, pianoroll2notes
 
 

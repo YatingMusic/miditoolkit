@@ -1,22 +1,22 @@
-import mido
-import functools
 import collections
+import functools
 from pathlib import Path
-from typing import Tuple, Union, Sequence
+from typing import Sequence, Tuple, Union
 
+import mido
 import numpy as np
 
 from .containers import (
-    KeySignature,
-    TimeSignature,
-    Lyric,
-    Note,
-    PitchBend,
     ControlChange,
     Instrument,
-    TempoChange,
+    KeySignature,
+    Lyric,
     Marker,
+    Note,
     Pedal,
+    PitchBend,
+    TempoChange,
+    TimeSignature,
 )
 
 DEFAULT_BPM = int(120)
@@ -610,7 +610,7 @@ class MidiFile(object):
             # Add all note events
             for note in instrument.notes:
                 if segment and not _is_note_within_tick_range(
-                        note, start_tick, end_tick, shift, True
+                    note, start_tick, end_tick, shift, True
                 ):
                     continue
                 track.append(

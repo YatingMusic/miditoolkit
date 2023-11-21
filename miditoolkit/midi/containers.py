@@ -1,6 +1,6 @@
 import re
-from typing import List, Union
 from dataclasses import dataclass
+from typing import List, Union
 
 
 @dataclass
@@ -349,8 +349,7 @@ def _key_name_to_key_number(key_string: str):
         # Allow for a space between key and mode
         " ?"
         # Next, look for any of the mode strings
-        "(?P<mode>(?:(?:"
-        +
+        "(?P<mode>(?:(?:" +
         # Next, look for any of the major or minor mode strings
         ")|(?:".join(major_strs + minor_strs)
         + "))?)$"

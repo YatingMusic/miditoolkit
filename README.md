@@ -1,6 +1,6 @@
 # miditoolkit
 
-A python package for working with MIDI data. 
+A python package for working with MIDI data.
 
 * Version: 0.1.17
 * Latest update date: 2023/10/31
@@ -23,7 +23,7 @@ The usage is similar to [pretty_midi](https://github.com/craffel/pretty-midi), w
         * chunk/cropping
     * IO
         * BytesIO
-* Piano-rolls    
+* Piano-rolls
     * Tools
         * notes to piano-rolls
         * piano-rolls to notes
@@ -31,7 +31,7 @@ The usage is similar to [pretty_midi](https://github.com/craffel/pretty-midi), w
     * Visualization
 * External Library
    * [structure analysis](https://github.com/wayne391/sf_segmenter)
-   
+
 ## TODO
 * better documentation
 * absolute timing
@@ -42,7 +42,7 @@ The usage is similar to [pretty_midi](https://github.com/craffel/pretty-midi), w
 
 ## Installation
 * current version: 0.1.15
-* **python 2 is not supported**   
+* **python 2 is not supported**
 * Install the miditoolkit via [PYPI](https://pypi.org/project/miditoolkit/):
 ```bash
 pip install miditoolkit
@@ -71,17 +71,15 @@ markers: 71
 lyrics: False
 instruments: 2
 ```
-A. [Parse and create MIDI files](examples/parse_and_create_MIDI_files.ipynb)  
+A. [Parse and create MIDI files](examples/parse_and_create_MIDI_files.ipynb)
 B. [Piano-roll Manipulation](examples/pinoroll_manipulation.ipynb)
 
 
 ## Philosophy
-* [pretty_midi](https://github.com/craffel/pretty-midi) can parse MIDI files and generate pianorolls in absolute timing (seconds). 
+* [pretty_midi](https://github.com/craffel/pretty-midi) can parse MIDI files and generate pianorolls in absolute timing (seconds).
 * [pypianoroll](https://github.com/salu133445/pypianoroll) can parse MIDI files into pianorolls in symbolic timing (through beat resolution).
 * [mido](https://github.com/mido/mido) processes MIDI files in the lower level such as messages and ports.
 
 **Miditoolkit** is designed for handling MIDI in **symbolic timing** (ticks), which is the native format of MIDI timing. We keep the midi parser as simple as possible, and offer several important functions to complete the versatility. For example, piano-rolls, tick-to-second, chromagram, and etc.
 
-To customize settings and maximum the degree of freedom, users can use additional libraries like visualization, which are excluded in the toolkit. 
-
-
+To customize settings and maximum the degree of freedom, users can use additional libraries like visualization, which are excluded in the toolkit.
