@@ -1,5 +1,8 @@
-from .parser import *
-from .utils import *
-from .vis import *
+from .parser import notes2pianoroll, pianoroll2notes
 
-__all__ = [_ for _ in dir() if not _.startswith("_")]
+# Convenience re-exports
+
+__all__ = [
+    "notes2pianoroll",
+    "pianoroll2notes",
+]
