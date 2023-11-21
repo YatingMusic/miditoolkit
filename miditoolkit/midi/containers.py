@@ -290,10 +290,9 @@ class Instrument:
         notes_to_delete = [note for note in self.notes if note.end <= note.start]
         if verbose:
             if len(notes_to_delete):
-                print("\nInvalid notes:")
-                print(notes_to_delete, "\n\n")
+                print("\nInvalid notes:\n", notes_to_delete, "\n\n")  # noqa: T201
             else:
-                print("no invalid notes found")
+                print("no invalid notes found")  # noqa: T201
             return True
 
         # Remove the notes found

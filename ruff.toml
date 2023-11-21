@@ -5,6 +5,7 @@ extend-select = [
     "I",
     "PERF",
     "RUF013",
+    "T",
     "UP",
 ]
 
