@@ -4,11 +4,12 @@
 
 """
 
-from pathlib import Path
 import shutil
+from pathlib import Path
+
+from tqdm import tqdm
 
 from miditoolkit import MidiFile
-from tqdm import tqdm
 
 
 def test_load_dump():

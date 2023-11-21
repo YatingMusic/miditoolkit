@@ -1,5 +1,5 @@
 from copy import deepcopy
-from typing import List, Tuple, Callable, Union
+from typing import Callable, List, Tuple, Union
 
 import numpy as np
 

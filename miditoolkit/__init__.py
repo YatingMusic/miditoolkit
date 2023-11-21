@@ -7,7 +7,6 @@ __version__ = "1.0.1"
 
 # Convenience exports for commonly used classes.
 
-from miditoolkit.midi.parser import MidiFile
 from miditoolkit.midi.containers import (
     ControlChange,
     Instrument,
@@ -20,6 +19,7 @@ from miditoolkit.midi.containers import (
     TempoChange,
     TimeSignature,
 )
+from miditoolkit.midi.parser import MidiFile
 
 __all__ = [
     "ControlChange",
