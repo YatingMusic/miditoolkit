@@ -3,6 +3,10 @@ extend-select = [
     "B",
     "ERA",
     "I",
+    "PERF",
     "RUF013",
     "UP",
 ]
+
+[extend-per-file-ignores]
+"miditoolkit/midi/parser.py" = ["PERF401"]

@@ -287,10 +287,7 @@ class Instrument:
     def remove_invalid_notes(self, verbose: bool = True):
         """Removes any notes whose end time is before or at their start time."""
         # Crete a list of all invalid notes
-        notes_to_delete = []
-        for note in self.notes:
-            if note.end <= note.start:
-                notes_to_delete.append(note)
+        notes_to_delete = [note for note in self.notes if note.end <= note.start]
         if verbose:
             if len(notes_to_delete):
                 print("\nInvalid notes:")

@@ -23,7 +23,7 @@ DEFAULT_BPM = 120
 
 # We "hack" mido's Note_on messages checks to allow to add an "end" attribute, that
 # will serve us to sort the messages in the good order when writing a MIDI file.
-new_set = set(list(mido.messages.SPEC_BY_TYPE["note_on"]["attribute_names"]) + ["end"])
+new_set = {"end", *mido.messages.SPEC_BY_TYPE["note_on"]["attribute_names"]}
 mido.messages.SPEC_BY_TYPE["note_on"]["attribute_names"] = new_set
 mido.messages.checks._CHECKS["end"] = mido.messages.checks.check_time
 
