@@ -610,7 +610,7 @@ class MidiFile(object):
             # Add all note events
             for note in instrument.notes:
                 if segment and not _is_note_within_tick_range(
-                        note, start_tick, end_tick, shift, True
+                    note, start_tick, end_tick, shift, True
                 ):
                     continue
                 track.append(
