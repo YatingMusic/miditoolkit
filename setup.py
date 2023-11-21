@@ -25,7 +25,6 @@ setup(
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
@@ -37,7 +36,7 @@ setup(
     long_description_content_type="text/markdown",
     license="MIT",
     extras_require=extras,
-    python_requires=">=3.7.0",
+    python_requires=">=3.8",
     install_requires=[
         "numpy >= 1.19",
         "mido >= 1.1.16",
