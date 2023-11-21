@@ -19,7 +19,7 @@ from .containers import (
     TimeSignature,
 )
 
-DEFAULT_BPM = int(120)
+DEFAULT_BPM = 120
 
 # We "hack" mido's Note_on messages checks to allow to add an "end" attribute, that
 # will serve us to sort the messages in the good order when writing a MIDI file.
@@ -28,7 +28,7 @@ mido.messages.SPEC_BY_TYPE["note_on"]["attribute_names"] = new_set
 mido.messages.checks._CHECKS["end"] = mido.messages.checks.check_time
 
 
-class MidiFile(object):
+class MidiFile:
     def __init__(
         self,
         filename: Union[Path, str] = None,
@@ -93,7 +93,7 @@ class MidiFile(object):
     @staticmethod
     def _convert_delta_to_cumulative(mido_obj):
         for track in mido_obj.tracks:
-            tick = int(0)
+            tick = 0
             for event in track:
                 event.time += tick
                 tick = event.time
@@ -336,14 +336,14 @@ class MidiFile(object):
 
     def __str__(self):
         output_list = [
-            "ticks per beat: {}".format(self.ticks_per_beat),
-            "max tick: {}".format(self.max_tick),
-            "tempo changes: {}".format(len(self.tempo_changes)),
-            "time sig: {}".format(len(self.time_signature_changes)),
-            "key sig: {}".format(len(self.key_signature_changes)),
-            "markers: {}".format(len(self.markers)),
-            "lyrics: {}".format(bool(len(self.lyrics))),
-            "instruments: {}".format(len(self.instruments)),
+            f"ticks per beat: {self.ticks_per_beat}",
+            f"max tick: {self.max_tick}",
+            f"tempo changes: {len(self.tempo_changes)}",
+            f"time sig: {len(self.time_signature_changes)}",
+            f"key sig: {len(self.key_signature_changes)}",
+            f"markers: {len(self.markers)}",
+            f"lyrics: {bool(len(self.lyrics))}",
+            f"instruments: {len(self.instruments)}",
         ]
         output_str = "\n".join(output_list)
         return output_str
@@ -412,7 +412,7 @@ class MidiFile(object):
             return 0
 
         if (filename is None) and (file is None):
-            raise IOError("please specify the output.")
+            raise OSError("please specify the output.")
 
         if instrument_idx is None:
             pass

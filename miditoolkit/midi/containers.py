@@ -357,7 +357,7 @@ def _key_name_to_key_number(key_string: str):
     # Match provided key string
     result = re.match(pattern, key_string)
     if result is None:
-        raise ValueError("Supplied key {} is not valid.".format(key_string))
+        raise ValueError(f"Supplied key {key_string} is not valid.")
     # Convert result to dictionary
     result = result.groupdict()
 

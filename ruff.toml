@@ -1,4 +1,5 @@
 target-version = "py37"
 extend-select = [
     "I",
+    "UP",
 ]
