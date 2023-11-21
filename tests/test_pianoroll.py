@@ -6,9 +6,11 @@
 
 from pathlib import Path
 
-from miditoolkit import MidiFile, notes2pianoroll, pianoroll2notes
+from miditoolkit import MidiFile
 from miditoolkit.constants import PITCH_RANGE
 from tqdm import tqdm
+
+from miditoolkit.pianoroll import notes2pianoroll, pianoroll2notes
 
 
 def test_pianoroll():

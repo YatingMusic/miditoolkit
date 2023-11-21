@@ -51,7 +51,7 @@ pip install miditoolkit
 ## Example Usage
 
 ```python
-from miditoolkit.midi.parser import MidiFile
+from miditoolkit import MidiFile
 from miditoolkit.midi.utils import example_midi_file
 
 path_midi = example_midi_file()
