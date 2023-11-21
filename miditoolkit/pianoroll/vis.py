@@ -346,7 +346,7 @@ def plot_xticks(ax, xtick, xtick_interval, max_tick, beat_resolution, downbeats)
             if downbeats.dtype == int:
                 xticks_downbeats = downbeats
             elif downbeats.dtype == bool:
-                xticks_downbeats = np.where(downbeats == True)
+                xticks_downbeats = np.where(downbeats == True)  # noqa: E712
             else:
                 raise ValueError("Unkown downbeats type: %s" % downbeats)
         ax.set_xticks(xticks_downbeats)

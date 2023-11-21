@@ -3,10 +3,9 @@ from setuptools import setup, find_packages
 
 extras = {
     "tests": [
-        "setuptools",
-        "flake8",
         "pytest-cov",
         "pytest-xdist[psutil]",
+        "setuptools",
         "tqdm",
     ]
 }
