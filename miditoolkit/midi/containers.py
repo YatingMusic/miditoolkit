@@ -1,4 +1,5 @@
 import re
+import warnings
 from dataclasses import dataclass
 from typing import List, Optional, Union
 
@@ -38,9 +39,9 @@ class Pedal:
     Parameters
     ----------
     start : int
-        Time where the pedal starts.
+        Time when the pedal starts.
     end : int
-        Time where the pedal ends.
+        Time when the pedal ends.
 
     """
 
@@ -61,7 +62,7 @@ class PitchBend:
     pitch : int
         MIDI pitch bend amount, in the range ``[-8192, 8191]``.
     time : int
-        Time where the pitch bend occurs.
+        Time when the pitch bend occurs.
 
     """
 
@@ -80,7 +81,7 @@ class ControlChange:
     value : int
         The value of the control change, in ``[0, 127]``.
     time : int
-        Time where the control change occurs.
+        Time when the control change occurs.
 
     """
 
@@ -284,26 +285,26 @@ class Instrument:
         self.control_changes = [] if control_changes is None else control_changes
         self.pedals = [] if pedals is None else pedals
 
-    def remove_invalid_notes(self, verbose: bool = True):
-        """Removes any notes whose end time is before or at their start time."""
-        # Crete a list of all invalid notes
-        notes_to_delete = [note for note in self.notes if note.end <= note.start]
-        if verbose:
-            if len(notes_to_delete):
-                print("\nInvalid notes:\n", notes_to_delete, "\n\n")  # noqa: T201
-            else:
-                print("no invalid notes found")  # noqa: T201
-            return True
+    def remove_invalid_notes(self, verbose: bool = True) -> None:
+        warnings.warn(
+            "Call remove_notes_with_no_duration() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.remove_notes_with_no_duration()
 
-        # Remove the notes found
-        for note in notes_to_delete:
-            self.notes.remove(note)
-        return False
+    def remove_notes_with_no_duration(self) -> None:
+        """Removes (inplace) notes whose end time is before or at their start time."""
+        for i in range(self.num_notes - 1, -1, -1):
+            if self.notes[i].start >= self.notes[i].end:
+                del self.notes[i]
+
+    @property
+    def num_notes(self) -> int:
+        return len(self.notes)
 
     def __repr__(self):
-        return 'Instrument(program={}, is_drum={}, name="{}")'.format(
-            self.program, self.is_drum, self.name.replace('"', r"\"")
-        )
+        return f"Instrument(program={self.program}, is_drum={self.is_drum}, name={self.name}) - {self.num_notes} notes"
 
     def __eq__(self, other):
         # Here we check all tracks attributes except the name.

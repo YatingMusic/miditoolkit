@@ -38,20 +38,18 @@ class MidiFile:
         charset: str = "latin1",
     ):
         # create empty file
-        if filename is None and file is None:
-            self.ticks_per_beat = ticks_per_beat
-            self.max_tick = 0
-            self.tempo_changes = []
-            self.time_signature_changes = []
-            self.key_signature_changes = []
-            self.lyrics = []
-            self.markers = []
-            self.instruments = []
+        self.ticks_per_beat: int = ticks_per_beat
+        self.max_tick: int = 0
+        self.tempo_changes: Sequence[TempoChange] = []
+        self.time_signature_changes: Sequence[TimeSignature] = []
+        self.key_signature_changes: Sequence[KeySignature] = []
+        self.lyrics: Sequence[str] = []
+        self.markers: Sequence[Marker] = []
+        self.instruments: Sequence[Instrument] = []
 
-        # load
-        else:
+        # load file
+        if filename or file:
             if filename:
-                # filename
                 mido_obj = mido.MidiFile(filename=filename, clip=clip, charset=charset)
             else:
                 mido_obj = mido.MidiFile(file=file, clip=clip, charset=charset)
@@ -330,6 +328,10 @@ class MidiFile:
             self.ticks_per_beat, self.max_tick, self.tempo_changes
         )
 
+    @property
+    def num_instruments(self) -> int:
+        return len(self.instruments)
+
     def __repr__(self):
         return self.__str__()
 
@@ -342,7 +344,7 @@ class MidiFile:
             f"key sig: {len(self.key_signature_changes)}",
             f"markers: {len(self.markers)}",
             f"lyrics: {bool(len(self.lyrics))}",
-            f"instruments: {len(self.instruments)}",
+            f"instruments: {self.num_instruments}",
         ]
         output_str = "\n".join(output_list)
         return output_str
