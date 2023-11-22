@@ -284,7 +284,11 @@ class Instrument:
         self.control_changes = [] if control_changes is None else control_changes
         self.pedals = [] if pedals is None else pedals
 
-    def remove_notes_with_no_duration(self):
+    def remove_invalid_notes(self, verbose: bool = True) -> None:
+        warnings.warn("Call remove_notes_with_no_duration() instead.", DeprecationWarning)
+        return self.remove_notes_with_no_duration()
+
+    def remove_notes_with_no_duration(self) -> None:
         """Removes (inplace) notes whose end time is before or at their start time."""
         for i in range(self.nb_notes - 1, -1, -1):
             if self.notes[i].start >= self.notes[i].end:
