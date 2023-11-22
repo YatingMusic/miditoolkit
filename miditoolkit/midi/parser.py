@@ -328,6 +328,10 @@ class MidiFile:
             self.ticks_per_beat, self.max_tick, self.tempo_changes
         )
 
+    @property
+    def num_instruments(self) -> int:
+        return len(self.instruments)
+
     def __repr__(self):
         return self.__str__()
 
@@ -340,7 +344,7 @@ class MidiFile:
             f"key sig: {len(self.key_signature_changes)}",
             f"markers: {len(self.markers)}",
             f"lyrics: {bool(len(self.lyrics))}",
-            f"instruments: {len(self.instruments)}",
+            f"instruments: {self.num_instruments}",
         ]
         output_str = "\n".join(output_list)
         return output_str
