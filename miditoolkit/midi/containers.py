@@ -295,16 +295,16 @@ class Instrument:
 
     def remove_notes_with_no_duration(self) -> None:
         """Removes (inplace) notes whose end time is before or at their start time."""
-        for i in range(self.nb_notes - 1, -1, -1):
+        for i in range(self.num_notes - 1, -1, -1):
             if self.notes[i].start >= self.notes[i].end:
                 del self.notes[i]
 
     @property
-    def nb_notes(self) -> int:
+    def num_notes(self) -> int:
         return len(self.notes)
 
     def __repr__(self):
-        return f"Instrument(program={self.program}, is_drum={self.is_drum}, name={self.name}) - {self.nb_notes} notes"
+        return f"Instrument(program={self.program}, is_drum={self.is_drum}, name={self.name}) - {self.num_notes} notes"
 
     def __eq__(self, other):
         # Here we check all tracks attributes except the name.

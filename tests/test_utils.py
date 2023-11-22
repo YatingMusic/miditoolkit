@@ -12,7 +12,7 @@ def test_remove_notes_with_no_duration(midi_path, tmp_path):
     # Load the MIDI file and removes the notes with durations <= 0
     midi = MidiFile(midi_path)
     midi.instruments[0].remove_notes_with_no_duration()
-    nb_notes_before = midi.instruments[0].nb_notes
+    num_notes_before = midi.instruments[0].num_notes
 
     # Adding notes with durations <= 0, then reapply the method
     midi.instruments[0].notes.append(Note(50, 50, 100, 100))
@@ -20,5 +20,5 @@ def test_remove_notes_with_no_duration(midi_path, tmp_path):
     midi.instruments[0].remove_notes_with_no_duration()
 
     assert (
-        midi.instruments[0].nb_notes == nb_notes_before
+        midi.instruments[0].num_notes == num_notes_before
     ), "The notes with duration <=0 were not removed by test_remove_notes_with_no_duration"
