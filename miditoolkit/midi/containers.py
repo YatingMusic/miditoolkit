@@ -3,6 +3,8 @@ import warnings
 from dataclasses import dataclass
 from typing import List, Optional, Union
 
+from ..constants import MAJOR_NAMES, MINOR_NAMES
+
 
 @dataclass
 class Note:
@@ -27,7 +29,7 @@ class Note:
     end: int
 
     @property
-    def duration(self):
+    def duration(self) -> int:
         """Get the duration of the note in ticks."""
         return self.end - self.start
 
@@ -49,7 +51,7 @@ class Pedal:
     end: int
 
     @property
-    def duration(self):
+    def duration(self) -> int:
         return self.end - self.start
 
 
@@ -333,10 +335,8 @@ class Instrument:
         return True
 
 
-def _key_name_to_key_number(key_string: str):
+def _key_name_to_key_number(key_string: str) -> int:
     # Create lists of possible mode names (major or minor)
-    major_strs = ["M", "Maj", "Major", "maj", "major"]
-    minor_strs = ["m", "Min", "Minor", "min", "minor"]
     # Construct regular expression for matching key
     pattern = re.compile(
         # Start with any of A-G, a-g
@@ -348,7 +348,7 @@ def _key_name_to_key_number(key_string: str):
         # Next, look for any of the mode strings
         "(?P<mode>(?:(?:" +
         # Next, look for any of the major or minor mode strings
-        ")|(?:".join(major_strs + minor_strs)
+        ")|(?:".join(MAJOR_NAMES + MINOR_NAMES)
         + "))?)$"
     )
     # Match provided key string
@@ -371,8 +371,8 @@ def _key_name_to_key_number(key_string: str):
     # Circle around 12 pitch classes
     key_number = key_number % 12
     # Offset if mode is minor, or the key name is lowercase
-    if result["mode"] in minor_strs or (
-        result["key"].islower() and result["mode"] not in major_strs
+    if result["mode"] in MINOR_NAMES or (
+        result["key"].islower() and result["mode"] not in MAJOR_NAMES
     ):
         key_number += 12
 

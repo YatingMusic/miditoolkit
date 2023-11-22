@@ -122,7 +122,7 @@ def pianoroll2notes(
     pianoroll: np.ndarray,
     resample_factor: Optional[float] = None,
     pitch_range: Optional[Union[int, Tuple[int, int]]] = None,
-):
+) -> List[Note]:
     """Converts a pianoroll (numpy array) into a sequence of notes.
 
     Args:

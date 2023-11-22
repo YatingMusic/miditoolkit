@@ -1,11 +1,12 @@
 import collections
 import functools
 from pathlib import Path
-from typing import Optional, Sequence, Tuple, Union
+from typing import List, Optional, Sequence, Tuple, Union
 
 import mido
 import numpy as np
 
+from ..constants import DEFAULT_BPM
 from .containers import (
     ControlChange,
     Instrument,
@@ -18,8 +19,6 @@ from .containers import (
     TempoChange,
     TimeSignature,
 )
-
-DEFAULT_BPM = 120
 
 # We "hack" mido's Note_on messages checks to allow to add an "end" attribute, that
 # will serve us to sort the messages in the good order when writing a MIDI file.
@@ -40,12 +39,12 @@ class MidiFile:
         # create empty file
         self.ticks_per_beat: int = ticks_per_beat
         self.max_tick: int = 0
-        self.tempo_changes: Sequence[TempoChange] = []
-        self.time_signature_changes: Sequence[TimeSignature] = []
-        self.key_signature_changes: Sequence[KeySignature] = []
-        self.lyrics: Sequence[str] = []
-        self.markers: Sequence[Marker] = []
-        self.instruments: Sequence[Instrument] = []
+        self.tempo_changes: List[TempoChange] = []
+        self.time_signature_changes: List[TimeSignature] = []
+        self.key_signature_changes: List[KeySignature] = []
+        self.lyrics: List[Lyric] = []
+        self.markers: List[Marker] = []
+        self.instruments: List[Instrument] = []
 
         # load file
         if filename or file:
@@ -58,7 +57,7 @@ class MidiFile:
             self.ticks_per_beat = mido_obj.ticks_per_beat
 
             # convert delta time to cumulative time
-            mido_obj = self._convert_delta_to_cumulative(mido_obj)
+            self._convert_delta_to_cumulative(mido_obj)
 
             # load tempo changes
             self.tempo_changes = self._load_tempo_changes(mido_obj)
@@ -89,16 +88,15 @@ class MidiFile:
         # tick and sec mapping
 
     @staticmethod
-    def _convert_delta_to_cumulative(mido_obj):
+    def _convert_delta_to_cumulative(mido_obj: mido.MidiFile):
         for track in mido_obj.tracks:
             tick = 0
             for event in track:
                 event.time += tick
                 tick = event.time
-        return mido_obj
 
     @staticmethod
-    def _load_tempo_changes(mido_obj: mido.MidiFile):
+    def _load_tempo_changes(mido_obj: mido.MidiFile) -> List[TempoChange]:
         # default bpm
         tempo_changes = [TempoChange(DEFAULT_BPM, 0)]
 
@@ -118,7 +116,7 @@ class MidiFile:
         return tempo_changes
 
     @staticmethod
-    def _load_time_signatures(mido_obj):
+    def _load_time_signatures(mido_obj: mido.MidiFile) -> List[TimeSignature]:
         # no default
         time_signature_changes = []
 
@@ -133,7 +131,7 @@ class MidiFile:
         return time_signature_changes
 
     @staticmethod
-    def _load_key_signatures(mido_obj):
+    def _load_key_signatures(mido_obj: mido.MidiFile) -> List[KeySignature]:
         # no default
         key_signature_changes = []
 
@@ -146,7 +144,7 @@ class MidiFile:
         return key_signature_changes
 
     @staticmethod
-    def _load_markers(mido_obj):
+    def _load_markers(mido_obj: mido.MidiFile) -> List[Marker]:
         # no default
         markers = []
 
@@ -158,7 +156,7 @@ class MidiFile:
         return markers
 
     @staticmethod
-    def _load_lyrics(mido_obj):
+    def _load_lyrics(mido_obj: mido.MidiFile) -> List[Lyric]:
         # no default
         lyrics = []
 
@@ -170,7 +168,7 @@ class MidiFile:
         return lyrics
 
     @staticmethod
-    def _load_instruments(midi_data):
+    def _load_instruments(midi_data: mido.MidiFile) -> List[Instrument]:
         instrument_map = collections.OrderedDict()
         # Store a similar mapping to instruments storing "straggler events",
         # e.g. events which appear before we want to initialize an Instrument
@@ -178,7 +176,12 @@ class MidiFile:
         # This dict will map track indices to any track names encountered
         track_name_map = collections.defaultdict(str)
 
-        def __get_instrument(program, channel, track, create_new):
+        def __get_instrument(
+            program_: int,
+            channel: int,
+            track_: int,
+            create_new: bool,
+        ):
             """Gets the Instrument corresponding to the given program number,
             drum/non-drum type, channel, and track index.  If no such
             instrument exists, one is created.
@@ -186,35 +189,35 @@ class MidiFile:
             """
             # If we have already created an instrument for this program
             # number/track/channel, return it
-            if (program, channel, track) in instrument_map:
-                return instrument_map[(program, channel, track)]
+            if (program_, channel, track_) in instrument_map:
+                return instrument_map[(program_, channel, track_)]
             # If there's a straggler instrument for this instrument and we
             # aren't being requested to create a new instrument
-            if not create_new and (channel, track) in stragglers:
-                return stragglers[(channel, track)]
+            if not create_new and (channel, track_) in stragglers:
+                return stragglers[(channel, track_)]
             is_drum = channel == 9
             # If we are told to, create a new instrument and store it
             if create_new:
-                instrument_ = Instrument(program, is_drum, track_name_map[track_idx])
+                instrument_ = Instrument(program_, is_drum, track_name_map[track_idx])
                 # If any events appeared for this instrument before now,
                 # include them in the new instrument
-                if (channel, track) in stragglers:
-                    straggler = stragglers[(channel, track)]
+                if (channel, track_) in stragglers:
+                    straggler = stragglers[(channel, track_)]
                     instrument_.control_changes = straggler.control_changes
                     instrument_.pitch_bends = straggler.pitch_bends
                     instrument_.pedals = straggler.pedals
                 # Add the instrument to the instrument map
-                instrument_map[(program, channel, track)] = instrument_
+                instrument_map[(program_, channel, track_)] = instrument_
             # Otherwise, create a "straggler" instrument which holds events
             # which appear before we actually want to create a proper new
             # instrument
             else:
                 # Create a "straggler" instrument
-                instrument_ = Instrument(program, is_drum, track_name_map[track_idx])
+                instrument_ = Instrument(program_, is_drum, track_name_map[track_idx])
                 # Note that stragglers ignores program number, because we want
                 # to store all events on a track which appear before the first
                 # note-on, regardless of program
-                stragglers[(channel, track)] = instrument_
+                stragglers[(channel, track_)] = instrument_
             return instrument_
 
         for track_idx, track in enumerate(midi_data.tracks):
@@ -271,7 +274,7 @@ class MidiFile:
                             # instrument
                             # Create a new instrument if none exists
                             instrument = __get_instrument(
-                                program, event.channel, track_idx, 1
+                                program, event.channel, track_idx, True
                             )
                             # Add the note event
                             instrument.notes.append(note)
@@ -291,7 +294,9 @@ class MidiFile:
                     program = current_instrument[event.channel]
                     # Retrieve the Instrument instance for the current inst
                     # Don't create a new instrument if none exists
-                    instrument = __get_instrument(program, event.channel, track_idx, 0)
+                    instrument = __get_instrument(
+                        program, event.channel, track_idx, False
+                    )
                     # Add the pitch bend event
                     instrument.pitch_bends.append(bend)
                 # Store control changes
@@ -303,7 +308,9 @@ class MidiFile:
                     program = current_instrument[event.channel]
                     # Retrieve the Instrument instance for the current inst
                     # Don't create a new instrument if none exists
-                    instrument = __get_instrument(program, event.channel, track_idx, 0)
+                    instrument = __get_instrument(
+                        program, event.channel, track_idx, False
+                    )
                     # Add the control change event
                     instrument.control_changes.append(control_change)
 
@@ -323,7 +330,7 @@ class MidiFile:
         instruments = [i for i in instrument_map.values()]
         return instruments
 
-    def get_tick_to_time_mapping(self):
+    def get_tick_to_time_mapping(self) -> np.ndarray:
         return _get_tick_to_second_mapping(
             self.ticks_per_beat, self.max_tick, self.tempo_changes
         )
@@ -374,7 +381,7 @@ class MidiFile:
         filename: Optional[Union[str, Path]] = None,
         file=None,
         segment: Optional[Tuple[int, int]] = None,
-        shift=True,
+        shift: bool = True,
         instrument_idx: Optional[int] = None,
         charset: str = "latin1",
     ):
@@ -689,8 +696,12 @@ def _is_note_within_tick_range(
 
 
 def _include_meta_events_within_tick_range(
-    events, start_tick: int, end_tick: int, shift: bool = False, front: bool = True
-):
+    events: Sequence[Union[mido.MetaMessage, mido.Message]],
+    start_tick: int,
+    end_tick: int,
+    shift: bool = False,
+    front: bool = True,
+) -> Sequence[mido.MetaMessage]:
     r"""
 
     Args:
