@@ -39,8 +39,6 @@ dependencies = [
 tests = [
     "pytest-cov",
     "pytest-xdist[psutil]",
-    "setuptools",
-    "tqdm",
 ]
 
 [project.urls]
