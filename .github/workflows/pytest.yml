@@ -9,7 +9,7 @@ on:
     branches: [master]
 
 jobs:
-  build:
+  test:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -34,3 +34,15 @@ jobs:
           pytest --cov=./ --cov-report=xml -n auto
       - name: Codecov
         uses: codecov/codecov-action@v3.1.0
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.x'
+      - name: Install dependencies
+        run: pip install build
+      - name: Build package
+        run: python -m build
