@@ -1,6 +1,9 @@
+from typing import Optional, Tuple, Union
+
 import numpy as np
 from matplotlib import pyplot as plt
 
+from ..constants import PITCH_ID_TO_NAME
 from .utils import pitch_padding
 
 # -------------------------------------------- #
@@ -24,45 +27,31 @@ YLABEL_FONT_SIZE = 5
 # set middle C (midi note number 60)
 #     ex: set C4 to 60(5th) means set 0(0th) to C-1
 OFFSET_OCTAVE = -1
-PITCH_TO_NAME = {
-    0: "C",
-    1: "C#",
-    2: "D",
-    3: "D#",
-    4: "E",
-    5: "F",
-    6: "F#",
-    7: "G",
-    8: "G#",
-    9: "A",
-    10: "A#",
-    11: "B",
-}
 
 
 # -------------------------------------------- #
 # Main Functions
 # -------------------------------------------- #
 def plot(
-    pianoroll,
-    note_range=(0, 128),
-    beat_resolution=24,
-    downbeats=4,
-    background_layout="pianoroll",
-    grid_layout="x",
-    xtick="downbeat",
-    ytick="number",
-    ytick_interval=12,
-    xtick_interval=1,
-    x_range=None,
-    y_range=None,
-    figsize=None,
-    dpi=300,
-):
+    pianoroll: np.ndarray,
+    note_range: Tuple[int, int] = (0, 128),
+    beat_resolution: int = 24,
+    downbeats: Union[int, np.ndarray] = 4,
+    background_layout: str = "pianoroll",
+    grid_layout: str = "x",
+    xtick: str = "downbeat",
+    ytick: str = "number",
+    ytick_interval: int = 12,
+    xtick_interval: int = 1,
+    x_range: Optional[Tuple[int, int]] = None,
+    y_range: Optional[Tuple[int, int]] = None,
+    figsize: Optional[Tuple[int, int]] = None,
+    dpi: int = 300,
+) -> Tuple[plt.Figure, plt.Axes]:
     """Plot Pianoroll
     Parameters
     ----------
-    pianoroll : np.array
+    pianoroll : np.ndarray
         a tensor with the shape of T(time) x P(pitch).
     note_range : tuple or list
         (start, end) or [start, end]. It indicates the pitch range of
@@ -70,9 +59,9 @@ def plot(
         is no cropping.
     beat_resolution : int
         the resolution of one beat. It's equivalent to 'ticks per beat' in MIDI
-    downbeats : np.array or int
+    downbeats : np.ndarray or int
         np.array:
-            bool: indicates that if the current beat is a downbear or not
+            bool: indicates that if the current beat is a downbeat or not
             int: indices of downbeat
         int:
             num of beats per downbeat
@@ -88,9 +77,9 @@ def plot(
         interval between ticks of pitch axis
     xtick_interval : int
         interval between ticks of time axis
-    x_range : tuple or list
+    x_range : tuple
         (start, end) or [start, end], None for all
-    y_range : tuple or list
+    y_range : tuple
         (start, end) or [start, end], None for all
     figsize : tuple
         (h, w). Using it to customize the output image when the result
@@ -142,20 +131,20 @@ def plot(
 
 
 def plot_chroma(
-    chroma,
-    beat_resolution=24,
-    downbeats=4,
-    xtick="downbeat",
-    ytick="note",
-    x_range=None,
-    xtick_interval=1,
-    figsize=None,
-    dpi=300,
-):
+    chroma: np.ndarray,
+    beat_resolution: int = 24,
+    downbeats: Union[int, np.ndarray] = 4,
+    xtick: str = "downbeat",
+    ytick: str = "note",
+    x_range: Optional[Tuple[int, int]] = None,
+    xtick_interval: int = 1,
+    figsize: Optional[Tuple[int, int]] = None,
+    dpi: int = 300,
+) -> Tuple[plt.Figure, plt.Axes]:
     """Plot Chromagram
     Parameters
     ----------
-    chroma : np.array
+    chroma : np.ndarray
         a tensor with the shape of T(time) x 12.
     beat_resolution : int
         the resolution of one beat. It's equivalent to 'ticks per beat' in MIDI
@@ -171,7 +160,7 @@ def plot_chroma(
         'number', 'note', None
     xtick_interval : int
         interval between ticks of time axis
-    x_range : tuple or list
+    x_range : tuple
         (start, end) or [start, end], None for all
     figsize : tuple
         (h, w). Using it to customize the output image when the result
@@ -204,7 +193,7 @@ def plot_chroma(
     if ytick == "number":
         ax.set_yticklabels(yticks, fontsize=YLABEL_FONT_SIZE)
     elif ytick == "note":
-        yticks_name = [PITCH_TO_NAME[k % 12] for k in yticks]
+        yticks_name = [PITCH_ID_TO_NAME[k % 12] for k in yticks]
         ax.set_yticklabels(yticks_name, fontsize=YLABEL_FONT_SIZE)
     else:
         ax.tick_params(axis="y", width=0)
@@ -226,13 +215,19 @@ def plot_chroma(
     return fig, ax
 
 
-def plot_heatmap(to_plot, tick_interval=None, origin="upper", figsize=None, dpi=300):
+def plot_heatmap(
+    to_plot: np.ndarray,
+    tick_interval: Optional[int] = None,
+    origin: str = "upper",
+    figsize: Optional[Tuple[int, int]] = None,
+    dpi: int = 300,
+) -> Tuple[plt.Figure, plt.Axes]:
     """Plot Similarity Matrix
     Parameters
     ----------
-    to_plot : np.array
+    to_plot : np.ndarray
         an M x N heatmap matrix. If the input is the self-similarity one,
-        thse size would be M x M
+        the size would be M x M
     tick_interval : int
         interval between ticks of both axis. If the input is None, it will
         be automatically adjusted.
@@ -283,7 +278,7 @@ def plot_heatmap(to_plot, tick_interval=None, origin="upper", figsize=None, dpi=
 # -------------------------------------------- #
 
 
-def plot_grid(ax, layout, which="minor", color="k"):
+def plot_grid(ax: plt.Axes, layout: str, which: str = "minor", color="k"):
     # always using 'minor' tick to plot grid
     # argumens check
     if layout not in ["x", "y", "both", None]:
@@ -300,7 +295,9 @@ def plot_grid(ax, layout, which="minor", color="k"):
         )
 
 
-def plot_yticks(ax, ytick, ytick_interval, max_tick, beat_resolution, downbeats):
+def plot_yticks(
+    ax: plt.Axes, ytick: str, ytick_interval: int, max_tick, beat_resolution, downbeats
+):
     # tick arrangement
     # - ytick, minor for grid
     yticks = np.arange(0.5, 128.5)
@@ -317,9 +314,9 @@ def plot_yticks(ax, ytick, ytick_interval, max_tick, beat_resolution, downbeats)
         yticks_name = []
         for k in yticks_key:
             lab = ""
-            if k % 12 in PITCH_TO_NAME:
+            if k % 12 in PITCH_ID_TO_NAME:
                 lab = "%2s%s" % (
-                    str(PITCH_TO_NAME[k % 12]),
+                    str(PITCH_ID_TO_NAME[k % 12]),
                     str(k // 12 + OFFSET_OCTAVE),
                 )
             yticks_name.append(lab)
@@ -329,7 +326,14 @@ def plot_yticks(ax, ytick, ytick_interval, max_tick, beat_resolution, downbeats)
         ax.set_yticklabels([])
 
 
-def plot_xticks(ax, xtick, xtick_interval, max_tick, beat_resolution, downbeats):
+def plot_xticks(
+    ax: plt.Axes,
+    xtick: str,
+    xtick_interval: int,
+    max_tick: int,
+    beat_resolution: int,
+    downbeats: Optional[int] = None,
+):
     # tick arrangement
     # - xtick, minor for beat
     xticks_beat = np.arange(0, max_tick, beat_resolution)
@@ -384,7 +388,7 @@ def plot_xticks(ax, xtick, xtick_interval, max_tick, beat_resolution, downbeats)
         raise ValueError("Unkown xtick type: %s" % xtick)
 
 
-def plot_background(ax, layout, canvas):
+def plot_background(ax: plt.Axes, layout: str, canvas):
     if layout == "pianoroll":
         all_black_index = []
         for n in range(11):
@@ -408,7 +412,7 @@ def plot_background(ax, layout, canvas):
         raise ValueError("Unkown background layout: %s" % layout)
 
 
-def plot_note_entries(ax, to_plot):
+def plot_note_entries(ax: plt.Axes, to_plot):
     # for better color percetion
     color_shift = 80
 

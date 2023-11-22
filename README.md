@@ -40,10 +40,10 @@ If you are working with seconds time units (for e.g. music transcription), you'l
 
 ## TODO
 
-* better documentation
-* absolute timing
-* cropping: Control Changes
-* cropping: bars
+* better documentation;
+* finish the code cleaning of the pianoroll methods (vis);
+* a way to switch the time in seconds across the whole MidiFile object;
+* cropping Control Changes and bars;
 * symbolic features
 * new structural analysis
 
