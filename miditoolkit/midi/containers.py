@@ -1,4 +1,5 @@
 import re
+import warnings
 from dataclasses import dataclass
 from typing import List, Optional, Union
 
@@ -285,7 +286,11 @@ class Instrument:
         self.pedals = [] if pedals is None else pedals
 
     def remove_invalid_notes(self, verbose: bool = True) -> None:
-        warnings.warn("Call remove_notes_with_no_duration() instead.", DeprecationWarning)
+        warnings.warn(
+            "Call remove_notes_with_no_duration() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         return self.remove_notes_with_no_duration()
 
     def remove_notes_with_no_duration(self) -> None:
