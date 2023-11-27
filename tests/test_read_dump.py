@@ -7,7 +7,7 @@ from tests.utils import MIDI_PATHS
 
 
 @pytest.mark.parametrize("midi_path", MIDI_PATHS, ids=attrgetter("name"))
-def test_load_dump(midi_path, tmp_path):
+def test_load_dump(midi_path, tmp_path, disable_mido_checks, disable_mido_merge_tracks):
     """Test that a MIDI loaded and saved unchanged is indeed the save as before."""
     midi1 = MidiFile(midi_path)
     dump_path = tmp_path / midi_path.name
