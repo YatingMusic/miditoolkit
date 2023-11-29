@@ -19,7 +19,7 @@ test_sets = [
 
 @pytest.mark.parametrize("midi_path", MIDI_PATHS, ids=attrgetter("name"))
 @pytest.mark.parametrize("test_set", test_sets)
-def test_pianoroll(midi_path, test_set):
+def test_pianoroll(midi_path, test_set, disable_mido_checks, disable_mido_merge_tracks):
     """Testing creating pianorolls of notes."""
 
     # Set pitch range parameters
