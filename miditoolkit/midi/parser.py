@@ -227,7 +227,6 @@ class MidiFile:
             # Keep track of which instrument is playing in each channel
             # initialize to program 0 for all channels
             current_instrument = np.zeros(16, dtype=np.int8)
-            ped_list = []
             for event in track:
                 # Look for track name events
                 if event.type == "track_name":
@@ -314,20 +313,29 @@ class MidiFile:
                     # Add the control change event
                     instrument.control_changes.append(control_change)
 
-                    # Process pedals
-                    if (
-                        ped_list and event.control == 64 and event.value == 0
-                    ):  # pedal list not empty: already have 'on'
-                        ped_list.append(event)  # Now have on and off
-                        pedal = Pedal(ped_list[0].time, ped_list[1].time)
-                        # Add the control change event
-                        instrument.pedals.append(pedal)
-                        ped_list = []
-                    elif not ped_list and event.control == 64 and event.value == 127:
-                        ped_list.append(event)  # Now only have on
-
         # Initialize list of instruments from instrument_map
         instruments = [i for i in instrument_map.values()]
+
+        # Parse control changes to get the Sustain pedals
+        for instrument in instruments:
+            if len(instrument.control_changes) < 2:
+                continue
+            # last_pedal_on_time is None when no Pedal control change is "on", and is equal to the oldest Pedal
+            # control change time (tick) while no CC to end it has been found
+            # We first need to sort the CC messages
+            instrument.control_changes.sort(key=lambda cc: cc.time)
+            last_pedal_on_time = None
+            for control_change in instrument.control_changes:
+                if control_change.number != 64:
+                    continue
+                elif last_pedal_on_time is not None and control_change.value == 0:
+                    instrument.pedals.append(
+                        Pedal(last_pedal_on_time, control_change.time)
+                    )
+                    last_pedal_on_time = None
+                elif last_pedal_on_time is None and control_change.value == 127:
+                    last_pedal_on_time = control_change.time
+
         return instruments
 
     def get_tick_to_time_mapping(self) -> np.ndarray:
