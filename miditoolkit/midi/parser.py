@@ -328,12 +328,12 @@ class MidiFile:
             for control_change in instrument.control_changes:
                 if control_change.number != 64:
                     continue
-                elif last_pedal_on_time is not None and control_change.value == 0:
+                elif last_pedal_on_time is not None and control_change.value < 64:
                     instrument.pedals.append(
                         Pedal(last_pedal_on_time, control_change.time)
                     )
                     last_pedal_on_time = None
-                elif last_pedal_on_time is None and control_change.value == 127:
+                elif last_pedal_on_time is None and control_change.value >= 64:
                     last_pedal_on_time = control_change.time
 
         return instruments
