@@ -240,8 +240,6 @@ class Instrument:
     ----------
     program : int
         MIDI program number (instrument index), in ``[0, 127]``.
-    is_drum : bool
-        Is the instrument a drum instrument (channel 9)?
     name : str
         Name of the instrument.
 
@@ -249,8 +247,6 @@ class Instrument:
     ----------
     program : int
         The program number of this instrument.
-    is_drum : bool
-        Is the instrument a drum instrument (channel 9)?
     name : str
         Name of the instrument.
     notes : list
@@ -265,7 +261,6 @@ class Instrument:
     def __init__(
         self,
         program: int = None,
-        is_drum: bool = False,
         name: str = "",
         notes: Optional[list[Note]] = None,
         pitch_bends: Optional[list[PitchBend]] = None,
@@ -274,7 +269,6 @@ class Instrument:
     ):
         """Create the Instrument."""
         self.program = program
-        self.is_drum = is_drum
         self.name = name
         self.notes = [] if notes is None else notes
         self.pitch_bends = [] if pitch_bends is None else pitch_bends
@@ -300,7 +294,7 @@ class Instrument:
         return len(self.notes)
 
     def __repr__(self):
-        return f"Instrument(program={self.program}, is_drum={self.is_drum}, name={self.name})"
+        return f"Instrument(program={self.program}, name={self.name})"
 
     def __eq__(self, other):
         # Here we check all tracks attributes except the name.
@@ -311,7 +305,7 @@ class Instrument:
         # them before calling it:
         # `track.notes.sort(key=lambda x: (x.start, x.pitch, x.end, x.velocity))`.
         # The same can be done for control_changes, pitch_bends and pedals.
-        if self.is_drum != other.is_drum or self.program != other.program:
+        if self.program != other.program:
             return False
 
         # Check list attributes.

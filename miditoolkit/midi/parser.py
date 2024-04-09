@@ -194,10 +194,9 @@ class MidiFile:
             # aren't being requested to create a new instrument
             if not create_new and (channel, track_) in stragglers:
                 return stragglers[(channel, track_)]
-            is_drum = channel == 9
             # If we are told to, create a new instrument and store it
             if create_new:
-                instrument_ = Instrument(program_, is_drum, track_name_map[track_idx])
+                instrument_ = Instrument(program_, track_name_map[track_idx])
                 # If any events appeared for this instrument before now,
                 # include them in the new instrument
                 if (channel, track_) in stragglers:
@@ -212,7 +211,7 @@ class MidiFile:
             # instrument
             else:
                 # Create a "straggler" instrument
-                instrument_ = Instrument(program_, is_drum, track_name_map[track_idx])
+                instrument_ = Instrument(program_, track_name_map[track_idx])
                 # Note that stragglers ignores program number, because we want
                 # to store all events on a track which appear before the first
                 # note-on, regardless of program
