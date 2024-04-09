@@ -1,5 +1,6 @@
 [tool.poetry]
-name = "miditoolkit"
+name = "pozalabs-miditoolkit"
+packages = [{ include = "miditoolkit"}]
 version = "0.1.0"
 description = "A python package for working with MIDI data files. (POZAlabs forked)"
 authors = ["pozalabs <contact@pozalabs.com>"]
