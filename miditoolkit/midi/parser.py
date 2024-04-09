@@ -502,8 +502,6 @@ class MidiFile:
         midi_parsed.tracks.append(meta_track)
 
         # -- instruments -- #
-        channels = list(range(16))
-        channels.remove(9)  # for durm
         for cur_idx, instrument in enumerate(self.instruments):
             if instrument_idx:
                 if cur_idx not in instrument_idx:
@@ -515,21 +513,20 @@ class MidiFile:
             if instrument.name:
                 track.append(mido.MetaMessage("track_name", time=0, name=instrument.name))
 
-            # If it's a drum event, we need to set channel to 9
-            if instrument.is_drum:
-                channel = 9
-
-            # Otherwise, choose a channel from the possible channel list
-            else:
-                channel = channels[cur_idx % len(channels)]
-
+            # Set the program number
+            if instrument.program:
+                track.append(
+                    mido.Message(
+                        "program_change",
+                        time=0,
+                        program=instrument.program,
+                    )
+                )
             # segment-related
             # Add all pitch bend events
             bend_list = []
             for bend in instrument.pitch_bends:
-                bend_list.append(
-                    mido.Message("pitchwheel", time=bend.time, channel=channel, pitch=bend.pitch)
-                )
+                bend_list.append(mido.Message("pitchwheel", time=bend.time, pitch=bend.pitch))
 
             # Add all control change events
             cc_list = []
@@ -539,7 +536,6 @@ class MidiFile:
                         mido.Message(
                             "control_change",
                             time=control_change.time,
-                            channel=channel,
                             control=control_change.number,
                             value=control_change.value,
                         )
@@ -551,7 +547,6 @@ class MidiFile:
                         mido.Message(
                             "control_change",
                             time=pedals.start,
-                            channel=channel,
                             control=64,
                             value=127,
                         )
@@ -561,7 +556,6 @@ class MidiFile:
                         mido.Message(
                             "control_change",
                             time=pedals.end,
-                            channel=channel,
                             control=64,
                             value=0,
                         )
@@ -586,7 +580,6 @@ class MidiFile:
                     mido.Message(
                         "note_on",
                         time=note.start,
-                        channel=channel,
                         note=note.pitch,
                         velocity=note.velocity,
                         end=note.end,
@@ -597,7 +590,6 @@ class MidiFile:
                     mido.Message(
                         "note_off",
                         time=note.end,
-                        channel=channel,
                         note=note.pitch,
                         velocity=note.velocity,
                     )

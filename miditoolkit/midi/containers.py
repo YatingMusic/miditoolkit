@@ -264,7 +264,7 @@ class Instrument:
 
     def __init__(
         self,
-        program: int,
+        program: int = None,
         is_drum: bool = False,
         name: str = "",
         notes: Optional[list[Note]] = None,
