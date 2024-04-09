@@ -1,17 +1,10 @@
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
-[project]
+[tool.poetry]
 name = "miditoolkit"
-dynamic = ["version"]
-description = "A python package for working with MIDI data files."
-readme = "README.md"
+version = "0.1.0"
+description = "A python package for working with MIDI data files. (POZAlabs forked)"
+authors = ["pozalabs <contact@pozalabs.com>"]
 license = "MIT"
-requires-python = ">=3.7.0"
-authors = [
-    { name = "wayne391", email = "s101062219@gmail.com" },
-]
+readme = "README.md"
 keywords = [
     "midi",
     "mir",
@@ -29,25 +22,18 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Topic :: Multimedia :: Sound/Audio :: MIDI",
 ]
-dependencies = [
-    "matplotlib",
-    "mido >= 1.1.16",
-    "numpy >= 1.19",
-]
 
-[project.optional-dependencies]
-tests = [
-    "pytest-cov",
-    "pytest-xdist[psutil]",
-]
+[tool.poetry.dependencies]
+python = "^3.9"
+mido = "^1.1.16"
+numpy = "^1.19"
+matplotlib = "^3.5"
 
-[project.urls]
-Homepage = "https://github.com/YatingMusic/miditoolkit"
 
-[tool.hatch.version]
-path = "miditoolkit/__init__.py"
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^3.7.0"
+pytest = "^8.1.1"
 
-[tool.hatch.build.targets.sdist]
-include = [
-    "/miditoolkit",
-]
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
