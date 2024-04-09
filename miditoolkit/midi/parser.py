@@ -1,7 +1,8 @@
 import collections
 import functools
+from collections.abc import Sequence
 from pathlib import Path
-from typing import List, Optional, Sequence, Tuple, Union
+from typing import Optional, Union
 
 import mido
 import numpy as np
@@ -39,12 +40,12 @@ class MidiFile:
         # create empty file
         self.ticks_per_beat: int = ticks_per_beat
         self.max_tick: int = 0
-        self.tempo_changes: List[TempoChange] = []
-        self.time_signature_changes: List[TimeSignature] = []
-        self.key_signature_changes: List[KeySignature] = []
-        self.lyrics: List[Lyric] = []
-        self.markers: List[Marker] = []
-        self.instruments: List[Instrument] = []
+        self.tempo_changes: list[TempoChange] = []
+        self.time_signature_changes: list[TimeSignature] = []
+        self.key_signature_changes: list[KeySignature] = []
+        self.lyrics: list[Lyric] = []
+        self.markers: list[Marker] = []
+        self.instruments: list[Instrument] = []
 
         # load file
         if filename or file:
@@ -96,7 +97,7 @@ class MidiFile:
                 tick = event.time
 
     @staticmethod
-    def _load_tempo_changes(mido_obj: mido.MidiFile) -> List[TempoChange]:
+    def _load_tempo_changes(mido_obj: mido.MidiFile) -> list[TempoChange]:
         # default bpm
         tempo_changes = [TempoChange(DEFAULT_BPM, 0)]
 
@@ -116,7 +117,7 @@ class MidiFile:
         return tempo_changes
 
     @staticmethod
-    def _load_time_signatures(mido_obj: mido.MidiFile) -> List[TimeSignature]:
+    def _load_time_signatures(mido_obj: mido.MidiFile) -> list[TimeSignature]:
         # no default
         time_signature_changes = []
 
@@ -124,14 +125,12 @@ class MidiFile:
         for track in mido_obj.tracks:
             for event in track:
                 if event.type == "time_signature":
-                    ts_obj = TimeSignature(
-                        event.numerator, event.denominator, event.time
-                    )
+                    ts_obj = TimeSignature(event.numerator, event.denominator, event.time)
                     time_signature_changes.append(ts_obj)
         return time_signature_changes
 
     @staticmethod
-    def _load_key_signatures(mido_obj: mido.MidiFile) -> List[KeySignature]:
+    def _load_key_signatures(mido_obj: mido.MidiFile) -> list[KeySignature]:
         # no default
         key_signature_changes = []
 
@@ -144,7 +143,7 @@ class MidiFile:
         return key_signature_changes
 
     @staticmethod
-    def _load_markers(mido_obj: mido.MidiFile) -> List[Marker]:
+    def _load_markers(mido_obj: mido.MidiFile) -> list[Marker]:
         # no default
         markers = []
 
@@ -156,7 +155,7 @@ class MidiFile:
         return markers
 
     @staticmethod
-    def _load_lyrics(mido_obj: mido.MidiFile) -> List[Lyric]:
+    def _load_lyrics(mido_obj: mido.MidiFile) -> list[Lyric]:
         # no default
         lyrics = []
 
@@ -168,7 +167,7 @@ class MidiFile:
         return lyrics
 
     @staticmethod
-    def _load_instruments(midi_data: mido.MidiFile) -> List[Instrument]:
+    def _load_instruments(midi_data: mido.MidiFile) -> list[Instrument]:
         instrument_map = collections.OrderedDict()
         # Store a similar mapping to instruments storing "straggler events",
         # e.g. events which appear before we want to initialize an Instrument
@@ -242,9 +241,7 @@ class MidiFile:
                     note_on_index = (event.channel, event.note)
                     last_note_on[note_on_index].append((event.time, event.velocity))
                 # Note offs can also be note on events with 0 velocity
-                elif event.type == "note_off" or (
-                    event.type == "note_on" and event.velocity == 0
-                ):
+                elif event.type == "note_off" or (event.type == "note_on" and event.velocity == 0):
                     # Check that a note-on exists (ignore spurious note-offs)
                     key = (event.channel, event.note)
                     if key in last_note_on:
@@ -255,33 +252,24 @@ class MidiFile:
                         end_tick = event.time
                         open_notes = last_note_on[key]
 
-                        notes_to_close = [open_notes[0]]
-                        notes_to_keep = [
-                            (start_tick, velocity)
-                            for start_tick, velocity in open_notes[1:]
-                        ]
+                        start_tick, velocity = open_notes.pop(0)
 
-                        for start_tick, velocity in notes_to_close:
-                            start_time = start_tick
-                            end_time = end_tick
-                            # Create the note event
-                            note = Note(velocity, event.note, start_time, end_time)
-                            # Get the program and drum type for the current
-                            # instrument
-                            program = current_instrument[event.channel]
-                            # Retrieve the Instrument instance for the current
-                            # instrument
-                            # Create a new instrument if none exists
-                            instrument = __get_instrument(
-                                program, event.channel, track_idx, True
-                            )
-                            # Add the note event
-                            instrument.notes.append(note)
+                        start_time = start_tick
+                        end_time = end_tick
+                        # Create the note event
+                        note = Note(velocity, event.note, start_time, end_time)
+                        # Get the program and drum type for the current instrument
+                        program = current_instrument[event.channel]
+                        # Retrieve the Instrument instance for the current instrument
+                        # Create a new instrument if none exists
+                        instrument = __get_instrument(program, event.channel, track_idx, True)
+                        # Add the note event
+                        instrument.notes.append(note)
 
-                        if len(notes_to_close) > 0 and len(notes_to_keep) > 0:
+                        if open_notes:
                             # Note-on on the same tick but we already closed
                             # some previous notes -> it will continue, keep it.
-                            last_note_on[key] = notes_to_keep
+                            last_note_on[key] = open_notes
                         else:
                             # Remove the last note on for this instrument
                             del last_note_on[key]
@@ -293,34 +281,29 @@ class MidiFile:
                     program = current_instrument[event.channel]
                     # Retrieve the Instrument instance for the current inst
                     # Don't create a new instrument if none exists
-                    instrument = __get_instrument(
-                        program, event.channel, track_idx, False
-                    )
+                    instrument = __get_instrument(program, event.channel, track_idx, False)
                     # Add the pitch bend event
                     instrument.pitch_bends.append(bend)
                 # Store control changes
                 elif event.type == "control_change":
-                    control_change = ControlChange(
-                        event.control, event.value, event.time
-                    )
+                    control_change = ControlChange(event.control, event.value, event.time)
                     # Get the program for the current inst
                     program = current_instrument[event.channel]
                     # Retrieve the Instrument instance for the current inst
                     # Don't create a new instrument if none exists
-                    instrument = __get_instrument(
-                        program, event.channel, track_idx, False
-                    )
+                    instrument = __get_instrument(program, event.channel, track_idx, False)
                     # Add the control change event
                     instrument.control_changes.append(control_change)
 
         # Initialize list of instruments from instrument_map
-        instruments = [i for i in instrument_map.values()]
+        instruments = list(instrument_map.values())
 
         # Parse control changes to get the Sustain pedals
         for instrument in instruments:
             if len(instrument.control_changes) < 2:
                 continue
-            # last_pedal_on_time is None when no Pedal control change is "on", and is equal to the oldest Pedal
+            # last_pedal_on_time is None when no Pedal control change is "on",
+            # and is equal to the oldest Pedal
             # control change time (tick) while no CC to end it has been found
             # We first need to sort the CC messages
             instrument.control_changes.sort(key=lambda cc: cc.time)
@@ -329,9 +312,7 @@ class MidiFile:
                 if control_change.number != 64:
                     continue
                 elif last_pedal_on_time is not None and control_change.value < 64:
-                    instrument.pedals.append(
-                        Pedal(last_pedal_on_time, control_change.time)
-                    )
+                    instrument.pedals.append(Pedal(last_pedal_on_time, control_change.time))
                     last_pedal_on_time = None
                 elif last_pedal_on_time is None and control_change.value >= 64:
                     last_pedal_on_time = control_change.time
@@ -339,9 +320,7 @@ class MidiFile:
         return instruments
 
     def get_tick_to_time_mapping(self) -> np.ndarray:
-        return _get_tick_to_second_mapping(
-            self.ticks_per_beat, self.max_tick, self.tempo_changes
-        )
+        return _get_tick_to_second_mapping(self.ticks_per_beat, self.max_tick, self.tempo_changes)
 
     @property
     def num_instruments(self) -> int:
@@ -375,10 +354,7 @@ class MidiFile:
         for list_attr in lists_attr:
             if len(getattr(self, list_attr)) != len(getattr(other, list_attr)):
                 return False
-            if any(
-                a1 != a2
-                for a1, a2 in zip(getattr(self, list_attr), getattr(other, list_attr))
-            ):
+            if any(a1 != a2 for a1, a2 in zip(getattr(self, list_attr), getattr(other, list_attr))):
                 return False
 
         # All good, both MIDIs holds the exact same content
@@ -388,7 +364,7 @@ class MidiFile:
         self,
         filename: Optional[Union[str, Path]] = None,
         file=None,
-        segment: Optional[Tuple[int, int]] = None,
+        segment: Optional[tuple[int, int]] = None,
         shift: bool = True,
         instrument_idx: Optional[int] = None,
         charset: str = "latin1",
@@ -402,7 +378,8 @@ class MidiFile:
             # This is required in case where the MIDI has notes starting at the same tick and one
             # with a higher duration is listed before one with a shorter one. In this case, the note
             # with the higher duration should come after, otherwise it will be ended first by the
-            # following note_off event. Ultimately, as the notes have the same starting time and pitch,
+            # following note_off event.
+            # Ultimately, as the notes have the same starting time and pitch,
             # the only thing that could be missed is their velocities. This check prevents this.
             if event1.type == event2.type == "note_on":
                 return event1.end - event2.end
@@ -451,9 +428,7 @@ class MidiFile:
         if self.time_signature_changes:
             add_ts = min([ts.time for ts in self.time_signature_changes]) > 0
         if add_ts:
-            ts_list.append(
-                mido.MetaMessage("time_signature", time=0, numerator=4, denominator=4)
-            )
+            ts_list.append(mido.MetaMessage("time_signature", time=0, numerator=4, denominator=4))
 
         # add each
         for ts in self.time_signature_changes:
@@ -480,9 +455,7 @@ class MidiFile:
         # - add each
         for t in self.tempo_changes:
             tempo_list.append(
-                mido.MetaMessage(
-                    "set_tempo", time=t.time, tempo=mido.bpm2tempo(t.tempo)
-                )
+                mido.MetaMessage("set_tempo", time=t.time, tempo=mido.bpm2tempo(t.tempo))
             )
 
         # 3. Lyrics
@@ -498,9 +471,7 @@ class MidiFile:
         # 5. Key
         key_list = []
         for ks in self.key_signature_changes:
-            key_list.append(
-                mido.MetaMessage("key_signature", time=ks.time, key=ks.key_name)
-            )
+            key_list.append(mido.MetaMessage("key_signature", time=ks.time, key=ks.key_name))
 
         # crop segment
         start_tick, end_tick = 0, 0
@@ -527,9 +498,7 @@ class MidiFile:
         meta_track.sort(key=functools.cmp_to_key(event_compare))
 
         # end of meta track
-        meta_track.append(
-            mido.MetaMessage("end_of_track", time=meta_track[-1].time + 1)
-        )
+        meta_track.append(mido.MetaMessage("end_of_track", time=meta_track[-1].time + 1))
         midi_parsed.tracks.append(meta_track)
 
         # -- instruments -- #
@@ -544,9 +513,7 @@ class MidiFile:
             # segment-free
             # track name
             if instrument.name:
-                track.append(
-                    mido.MetaMessage("track_name", time=0, name=instrument.name)
-                )
+                track.append(mido.MetaMessage("track_name", time=0, name=instrument.name))
 
             # If it's a drum event, we need to set channel to 9
             if instrument.is_drum:
@@ -561,9 +528,7 @@ class MidiFile:
             bend_list = []
             for bend in instrument.pitch_bends:
                 bend_list.append(
-                    mido.Message(
-                        "pitchwheel", time=bend.time, channel=channel, pitch=bend.pitch
-                    )
+                    mido.Message("pitchwheel", time=bend.time, channel=channel, pitch=bend.pitch)
                 )
 
             # Add all control change events
@@ -707,7 +672,8 @@ def _include_meta_events_within_tick_range(
         start_tick: starting tick.
         end_tick: ending tick.
         shift: if True, will shift the note's start and end times by `start_tick`.
-        front: will make sure the message coming last before the `start_tick` is kept and its time set at `start_tick`.
+        front: will make sure the message coming last before the
+        `start_tick` is kept and its time set at `start_tick`.
 
     Returns: list of meta messages within the given tick range
 

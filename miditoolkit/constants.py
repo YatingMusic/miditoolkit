@@ -1,6 +1,4 @@
-""" Constants files
-
-"""
+"""Constants files"""
 
 PITCH_RANGE = (0, 127)
 PITCH_ID_TO_NAME = {

@@ -1,4 +1,4 @@
-from typing import Optional, Tuple, Union
+from typing import Optional, Union
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -34,7 +34,7 @@ OFFSET_OCTAVE = -1
 # -------------------------------------------- #
 def plot(
     pianoroll: np.ndarray,
-    note_range: Tuple[int, int] = (0, 128),
+    note_range: tuple[int, int] = (0, 128),
     beat_resolution: int = 24,
     downbeats: Union[int, np.ndarray] = 4,
     background_layout: str = "pianoroll",
@@ -43,11 +43,11 @@ def plot(
     ytick: str = "number",
     ytick_interval: int = 12,
     xtick_interval: int = 1,
-    x_range: Optional[Tuple[int, int]] = None,
-    y_range: Optional[Tuple[int, int]] = None,
-    figsize: Optional[Tuple[int, int]] = None,
+    x_range: Optional[tuple[int, int]] = None,
+    y_range: Optional[tuple[int, int]] = None,
+    figsize: Optional[tuple[int, int]] = None,
     dpi: int = 300,
-) -> Tuple[plt.Figure, plt.Axes]:
+) -> tuple[plt.Figure, plt.Axes]:
     """Plot Pianoroll
     Parameters
     ----------
@@ -136,11 +136,11 @@ def plot_chroma(
     downbeats: Union[int, np.ndarray] = 4,
     xtick: str = "downbeat",
     ytick: str = "note",
-    x_range: Optional[Tuple[int, int]] = None,
+    x_range: Optional[tuple[int, int]] = None,
     xtick_interval: int = 1,
-    figsize: Optional[Tuple[int, int]] = None,
+    figsize: Optional[tuple[int, int]] = None,
     dpi: int = 300,
-) -> Tuple[plt.Figure, plt.Axes]:
+) -> tuple[plt.Figure, plt.Axes]:
     """Plot Chromagram
     Parameters
     ----------
@@ -219,9 +219,9 @@ def plot_heatmap(
     to_plot: np.ndarray,
     tick_interval: Optional[int] = None,
     origin: str = "upper",
-    figsize: Optional[Tuple[int, int]] = None,
+    figsize: Optional[tuple[int, int]] = None,
     dpi: int = 300,
-) -> Tuple[plt.Figure, plt.Axes]:
+) -> tuple[plt.Figure, plt.Axes]:
     """Plot Similarity Matrix
     Parameters
     ----------
@@ -286,13 +286,9 @@ def plot_grid(ax: plt.Axes, layout: str, which: str = "minor", color="k"):
 
     # grid Show
     if layout in ["x", "both"]:
-        ax.grid(
-            axis="x", color=color, which=which, linestyle="-", linewidth=0.2, alpha=0.5
-        )
+        ax.grid(axis="x", color=color, which=which, linestyle="-", linewidth=0.2, alpha=0.5)
     if layout in ["y", "both"]:
-        ax.grid(
-            axis="y", color=color, which=which, linestyle="-", linewidth=0.2, alpha=0.75
-        )
+        ax.grid(axis="y", color=color, which=which, linestyle="-", linewidth=0.2, alpha=0.75)
 
 
 def plot_yticks(
@@ -354,9 +350,7 @@ def plot_xticks(
             else:
                 raise ValueError("Unkown downbeats type: %s" % downbeats)
         ax.set_xticks(xticks_downbeats)
-        ax.grid(
-            axis="x", color="k", which="major", linestyle="-", linewidth=0.5, alpha=1.0
-        )
+        ax.grid(axis="x", color="k", which="major", linestyle="-", linewidth=0.5, alpha=1.0)
     else:
         ax.tick_params(axis="x", which="major", width=0)
     ax.set_xticklabels([])
@@ -365,15 +359,11 @@ def plot_xticks(
     if xtick == "beat":
         xlabels_beat = np.array([str(tick // beat_resolution) for tick in xticks_beat])
         xlabels_beat = _label_selector(xlabels_beat, xtick_interval)
-        ax.set_xticklabels(
-            xlabels_beat, minor=True, fontsize=XLABEL_FONT_SIZE, rotation=-90
-        )
+        ax.set_xticklabels(xlabels_beat, minor=True, fontsize=XLABEL_FONT_SIZE, rotation=-90)
     elif xtick == "tick":
         xlabels_tick = np.array([str(tick) for tick in xticks_beat])
         xlabels_tick = _label_selector(xlabels_tick, xtick_interval)
-        ax.set_xticklabels(
-            xlabels_tick, minor=True, fontsize=XLABEL_FONT_SIZE, rotation=-90
-        )
+        ax.set_xticklabels(xlabels_tick, minor=True, fontsize=XLABEL_FONT_SIZE, rotation=-90)
     elif xtick == "downbeat":
         if xtick == "downbeat" and downbeats is None:
             raise ValueError("Invalid Input: downbeats is None!")
@@ -392,7 +382,7 @@ def plot_background(ax: plt.Axes, layout: str, canvas):
     if layout == "pianoroll":
         all_black_index = []
         for n in range(11):
-            all_black_index.extend(list(map(lambda x: x + 12 * n, [1, 3, 6, 8, 10])))
+            all_black_index.extend([x + 12 * n for x in [1, 3, 6, 8, 10]])
 
         pianoroll_bg = np.ones_like(canvas) * WHITE_KEY_SATUR
         pianoroll_bg[all_black_index[:-2]] = BLACK_KEY_SATUR
