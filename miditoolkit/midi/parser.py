@@ -556,16 +556,6 @@ class MidiFile:
             else:
                 channel = channels[cur_idx % len(channels)]
 
-            # Set the program number
-            track.append(
-                mido.Message(
-                    "program_change",
-                    time=0,
-                    program=instrument.program,
-                    channel=channel,
-                )
-            )
-
             # segment-related
             # Add all pitch bend events
             bend_list = []
