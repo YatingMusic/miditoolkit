@@ -1,7 +1,7 @@
 import re
 import warnings
 from dataclasses import dataclass
-from typing import List, Optional, Union
+from typing import Optional, Union
 
 from ..constants import MAJOR_NAMES, MINOR_NAMES
 
@@ -163,9 +163,7 @@ class KeySignature:
 
         self.key_number = _key_name_to_key_number(self.key_name)
         if not (0 <= self.key_number < 24):
-            raise ValueError(
-                f"{self.key_number} is not a valid `key_number` type or value"
-            )
+            raise ValueError(f"{self.key_number} is not a valid `key_number` type or value")
 
     def __str__(self):
         return f"{self.key_name} [{self.key_name}] at {self.time:d} ticks"
@@ -177,9 +175,7 @@ class Marker:
     time: int
 
     def __repr__(self):
-        return 'Marker(text="{}", time={})'.format(
-            self.text.replace('"', r"\""), self.time
-        )
+        return 'Marker(text="{}", time={})'.format(self.text.replace('"', r"\""), self.time)
 
     def __str__(self):
         return f'"{self.text}" at {self.time:d} ticks'
@@ -203,9 +199,7 @@ class Lyric:
     time: int
 
     def __repr__(self):
-        return 'Lyric(text="{}", time={})'.format(
-            self.text.replace('"', r"\""), self.time
-        )
+        return 'Lyric(text="{}", time={})'.format(self.text.replace('"', r"\""), self.time)
 
     def __str__(self):
         return f'"{self.text}" at {self.time:d} ticks'
@@ -246,8 +240,6 @@ class Instrument:
     ----------
     program : int
         MIDI program number (instrument index), in ``[0, 127]``.
-    is_drum : bool
-        Is the instrument a drum instrument (channel 9)?
     name : str
         Name of the instrument.
 
@@ -255,32 +247,28 @@ class Instrument:
     ----------
     program : int
         The program number of this instrument.
-    is_drum : bool
-        Is the instrument a drum instrument (channel 9)?
     name : str
         Name of the instrument.
     notes : list
-        List of :class:`miditoolkit.Note` objects.
+        list of :class:`miditoolkit.Note` objects.
     pitch_bends : list
-        List of :class:`miditoolkit.PitchBend` objects.
+        list of :class:`miditoolkit.PitchBend` objects.
     control_changes : list
-        List of :class:`miditoolkit.ControlChange` objects.
+        list of :class:`miditoolkit.ControlChange` objects.
 
     """
 
     def __init__(
         self,
-        program: int,
-        is_drum: bool = False,
+        program: int = None,
         name: str = "",
-        notes: Optional[List[Note]] = None,
-        pitch_bends: Optional[List[PitchBend]] = None,
-        control_changes: Optional[List[ControlChange]] = None,
-        pedals: Optional[List[Pedal]] = None,
+        notes: Optional[list[Note]] = None,
+        pitch_bends: Optional[list[PitchBend]] = None,
+        control_changes: Optional[list[ControlChange]] = None,
+        pedals: Optional[list[Pedal]] = None,
     ):
         """Create the Instrument."""
         self.program = program
-        self.is_drum = is_drum
         self.name = name
         self.notes = [] if notes is None else notes
         self.pitch_bends = [] if pitch_bends is None else pitch_bends
@@ -306,7 +294,7 @@ class Instrument:
         return len(self.notes)
 
     def __repr__(self):
-        return f"Instrument(program={self.program}, is_drum={self.is_drum}, name={self.name}) - {self.num_notes} notes"
+        return f"Instrument(program={self.program}, name={self.name})"
 
     def __eq__(self, other):
         # Here we check all tracks attributes except the name.
@@ -314,9 +302,10 @@ class Instrument:
         # if two Instrument objects have the same musical content, but with some elements in
         # different orders (for example two notes with swapped indices in a list), the method will
         # return False. To make this method insensible to the lists orders, you can manually sort
-        # them before calling it: `track.notes.sort(key=lambda x: (x.start, x.pitch, x.end, x.velocity))`.
+        # them before calling it:
+        # `track.notes.sort(key=lambda x: (x.start, x.pitch, x.end, x.velocity))`.
         # The same can be done for control_changes, pitch_bends and pedals.
-        if self.is_drum != other.is_drum or self.program != other.program:
+        if self.program != other.program:
             return False
 
         # Check list attributes.
@@ -325,10 +314,7 @@ class Instrument:
         for list_attr in lists_attr:
             if len(getattr(self, list_attr)) != len(getattr(other, list_attr)):
                 return False
-            if any(
-                a1 != a2
-                for a1, a2 in zip(getattr(self, list_attr), getattr(other, list_attr))
-            ):
+            if any(a1 != a2 for a1, a2 in zip(getattr(self, list_attr), getattr(other, list_attr))):
                 return False
 
         # All good, both tracks holds the exact same content
@@ -359,9 +345,7 @@ def _key_name_to_key_number(key_string: str) -> int:
     result = result.groupdict()
 
     # Map from key string to pitch class number
-    key_number = {"c": 0, "d": 2, "e": 4, "f": 5, "g": 7, "a": 9, "b": 11}[
-        result["key"].lower()
-    ]
+    key_number = {"c": 0, "d": 2, "e": 4, "f": 5, "g": 7, "a": 9, "b": 11}[result["key"].lower()]
     # Increment or decrement pitch class if a flat or sharp was specified
     if result["flatsharp"]:
         if result["flatsharp"] == "#":

@@ -48,9 +48,7 @@ def test_pianoroll(midi_path, test_set, disable_mido_checks, disable_mido_merge_
         new_new_notes = pianoroll2notes(new_pianoroll, pitch_range=pitch_range)
         if "velocity_threshold" in test_set:
             new_notes = [
-                note
-                for note in new_notes
-                if note.velocity >= test_set["velocity_threshold"]
+                note for note in new_notes if note.velocity >= test_set["velocity_threshold"]
             ]
 
         # Assert notes are all retrieved
@@ -59,6 +57,4 @@ def test_pianoroll(midi_path, test_set, disable_mido_checks, disable_mido_merge_
         ), "Number of notes changed in pianoroll conversion"
         for note1, note2 in zip(new_notes, new_new_notes):
             # We don't test the resampling factor as it might later the number of notes
-            assert (
-                note1 == note2
-            ), "Notes before and after pianoroll conversion are not the same"
+            assert note1 == note2, "Notes before and after pianoroll conversion are not the same"

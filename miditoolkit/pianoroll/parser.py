@@ -1,5 +1,5 @@
 from copy import deepcopy
-from typing import Callable, List, Optional, Tuple, Union
+from typing import Callable, Optional, Union
 
 import numpy as np
 
@@ -8,31 +8,34 @@ from miditoolkit.constants import PITCH_RANGE
 
 
 def notes2pianoroll(
-    notes: List[Note],
-    pitch_range: Optional[Tuple[int, int]] = None,
+    notes: list[Note],
+    pitch_range: Optional[tuple[int, int]] = None,
     pitch_offset: int = 0,
     resample_factor: Optional[float] = None,
     resample_method: Callable = round,
     velocity_threshold: int = 0,
-    time_portion: Optional[Tuple[int, int]] = None,
+    time_portion: Optional[tuple[int, int]] = None,
     keep_note_with_zero_duration: bool = True,
 ) -> np.ndarray:
     r"""Converts a sequence of notes into a pianoroll numpy array.
 
     Args:
-        notes: List of notes to convert.
-        pitch_range: a range of pitch to cover. Notes outside of this range will be discarded. If not given,
+        notes: list of notes to convert.
+        pitch_range: a range of pitch to cover.
+            Notes outside of this range will be discarded. If not given,
             the method will represent all notes (pitches 0 to 127). (default: None)
-        pitch_offset: an offset to pad the pianoroll up and down on the pitch dimension. (default: 0)
+        pitch_offset: an offset to pad the pianoroll up and down on the pitch dimension.
+            (default: 0)
         resample_factor: factor to resample the time dimension. (default: None)
         resample_method: resampling method. (default: round)
-        velocity_threshold: a threshold for the velocity of the notes. Notes with velocities below this
-            threshold will be discarded. (default: 0)
+        velocity_threshold: a threshold for the velocity of the notes.
+            Notes with velocities below this threshold will be discarded. (default: 0)
         time_portion: time portion in tick to represent. (default: None)
         keep_note_with_zero_duration: option to keep the notes with a duration of 0 ticks, by
             representing them with a duration of 1 tick.
 
-    Returns: the pianoroll as a numpy array of two dimensions: the first is the time, the second is the pitch.
+    Returns: the pianoroll as a numpy array of two dimensions:
+        the first is the time, the second is the pitch.
 
     """
     # Checks
@@ -82,9 +85,7 @@ def notes2pianoroll(
             continue
         if note.start > max_tick:
             break
-        if pitch_range is not None and (
-            note.pitch < pitch_range[0] or note.pitch > pitch_range[1]
-        ):
+        if pitch_range is not None and (note.pitch < pitch_range[0] or note.pitch > pitch_range[1]):
             continue
 
         # Adjust notes times if needed
@@ -121,15 +122,15 @@ def notes2pianoroll(
 def pianoroll2notes(
     pianoroll: np.ndarray,
     resample_factor: Optional[float] = None,
-    pitch_range: Optional[Union[int, Tuple[int, int]]] = None,
-) -> List[Note]:
+    pitch_range: Optional[Union[int, tuple[int, int]]] = None,
+) -> list[Note]:
     """Converts a pianoroll (numpy array) into a sequence of notes.
 
     Args:
         pianoroll: pianoroll to convert.
         resample_factor: factor to resample the time dimension. (default: None)
-        pitch_range: a range of pitch to cover. Notes outside of this range will be discarded. If not given,
-            the method will represent all notes (pitches 0 to 127). (default: None)
+        pitch_range: a range of pitch to cover. Notes outside of this range will be discarded.
+            If not given, the method will represent all notes (pitches 0 to 127). (default: None)
 
     Returns: sequence of notes.
 
@@ -150,9 +151,7 @@ def pianoroll2notes(
     arrays.append(pianoroll)
     if high_pitch != PITCH_RANGE[1]:
         arrays.append(
-            np.zeros(
-                (pianoroll.shape[0], PITCH_RANGE[1] - high_pitch), dtype=pianoroll.dtype
-            )
+            np.zeros((pianoroll.shape[0], PITCH_RANGE[1] - high_pitch), dtype=pianoroll.dtype)
         )
     if len(arrays) > 1:
         pianoroll = np.concatenate(arrays, axis=1)
