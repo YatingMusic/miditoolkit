@@ -470,7 +470,8 @@ class MidiFile:
         # 5. Key
         key_list = []
         for ks in self.key_signature_changes:
-            key_list.append(mido.MetaMessage("key_signature", time=ks.time, key=ks.key_name))
+            mido_key_name = _key_number_to_key_name(ks.key_number)
+            key_list.append(mido.MetaMessage("key_signature", time=ks.time, key=mido_key_name))
 
         # crop segment
         start_tick, end_tick = 0, 0
@@ -731,3 +732,33 @@ def _get_tick_to_second_mapping(
         tick_to_time[start_tick : end_tick + 1] = acc_time + seconds_per_tick * ticks
         acc_time = tick_to_time[end_tick]
     return tick_to_time
+
+
+def _key_number_to_key_name(key_number: int) -> str:
+    key_number_to_mido_key_name = [
+        "C",
+        "Db",
+        "D",
+        "Eb",
+        "E",
+        "F",
+        "F#",
+        "G",
+        "Ab",
+        "A",
+        "Bb",
+        "B",
+        "Cm",
+        "C#m",
+        "Dm",
+        "D#m",
+        "Em",
+        "Fm",
+        "F#m",
+        "Gm",
+        "G#m",
+        "Am",
+        "Bbm",
+        "Bm",
+    ]
+    return key_number_to_mido_key_name[key_number]
