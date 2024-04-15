@@ -2,7 +2,7 @@
 Author: Wen-Yi Hsiao, Taiwan
 """
 
-__version__ = "1.1.1"
+__version__ = "1.1.2"
 
 # Convenience exports for commonly used classes.
 
