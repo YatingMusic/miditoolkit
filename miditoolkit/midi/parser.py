@@ -514,7 +514,7 @@ class MidiFile:
                 track.append(mido.MetaMessage("track_name", time=0, name=instrument.name))
 
             # Set the program number
-            if instrument.program:
+            if instrument.program is not None:
                 track.append(
                     mido.Message(
                         "program_change",
