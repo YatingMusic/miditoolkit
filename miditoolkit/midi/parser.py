@@ -223,8 +223,8 @@ class MidiFile:
             # key = (instrument, note), value = (note-on tick, velocity)
             last_note_on = collections.defaultdict(list)
             # Keep track of which instrument is playing in each channel
-            # initialize to program 0 for all channels
-            current_instrument = np.zeros(16, dtype=np.int8)
+            # initialize to program None for all channels
+            current_instrument = [None] * 16
             for event in track:
                 # Look for track name events
                 if event.type == "track_name":
