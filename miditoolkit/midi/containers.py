@@ -1,7 +1,8 @@
+from __future__ import annotations
+
 import re
 import warnings
 from dataclasses import dataclass
-from typing import List, Optional, Union
 
 from ..constants import MAJOR_NAMES, MINOR_NAMES
 
@@ -232,7 +233,7 @@ class TempoChange:
 
     """
 
-    tempo: Union[float, int]
+    tempo: float | int
     time: int
 
     def __str__(self):
@@ -273,10 +274,10 @@ class Instrument:
         program: int,
         is_drum: bool = False,
         name: str = "",
-        notes: Optional[List[Note]] = None,
-        pitch_bends: Optional[List[PitchBend]] = None,
-        control_changes: Optional[List[ControlChange]] = None,
-        pedals: Optional[List[Pedal]] = None,
+        notes: list[Note] | None = None,
+        pitch_bends: list[PitchBend] | None = None,
+        control_changes: list[ControlChange] | None = None,
+        pedals: list[Pedal] | None = None,
     ):
         """Create the Instrument."""
         self.program = program
@@ -327,7 +328,9 @@ class Instrument:
                 return False
             if any(
                 a1 != a2
-                for a1, a2 in zip(getattr(self, list_attr), getattr(other, list_attr))
+                for a1, a2 in zip(
+                    getattr(self, list_attr), getattr(other, list_attr), strict=False
+                )
             ):
                 return False
 

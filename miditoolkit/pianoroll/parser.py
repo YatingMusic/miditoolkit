@@ -1,5 +1,7 @@
+from __future__ import annotations
+
+from collections.abc import Callable
 from copy import deepcopy
-from typing import Callable, List, Optional, Tuple, Union
 
 import numpy as np
 
@@ -8,13 +10,13 @@ from miditoolkit.constants import PITCH_RANGE
 
 
 def notes2pianoroll(
-    notes: List[Note],
-    pitch_range: Optional[Tuple[int, int]] = None,
+    notes: list[Note],
+    pitch_range: tuple[int, int] | None = None,
     pitch_offset: int = 0,
-    resample_factor: Optional[float] = None,
+    resample_factor: float | None = None,
     resample_method: Callable = round,
     velocity_threshold: int = 0,
-    time_portion: Optional[Tuple[int, int]] = None,
+    time_portion: tuple[int, int] | None = None,
     keep_note_with_zero_duration: bool = True,
 ) -> np.ndarray:
     r"""Converts a sequence of notes into a pianoroll numpy array.
@@ -120,9 +122,9 @@ def notes2pianoroll(
 
 def pianoroll2notes(
     pianoroll: np.ndarray,
-    resample_factor: Optional[float] = None,
-    pitch_range: Optional[Union[int, Tuple[int, int]]] = None,
-) -> List[Note]:
+    resample_factor: float | None = None,
+    pitch_range: int | tuple[int, int] | None = None,
+) -> list[Note]:
     """Converts a pianoroll (numpy array) into a sequence of notes.
 
     Args:
