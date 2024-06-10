@@ -22,9 +22,30 @@ MAJOR_NAMES = ["M", "Maj", "Major", "maj", "major"]
 MINOR_NAMES = ["m", "Min", "Minor", "min", "minor"]
 
 KEY_NUMBER_TO_MIDO_KEY_NAME = [
-    'C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B',
-    'Cm', 'C#m', 'Dm', 'D#m', 'Em', 'Fm', 'F#m', 'Gm', 'G#m', 'Am',
-    'Bbm', 'Bm'
+    "C",
+    "Db",
+    "D",
+    "Eb",
+    "E",
+    "F",
+    "F#",
+    "G",
+    "Ab",
+    "A",
+    "Bb",
+    "B",
+    "Cm",
+    "C#m",
+    "Dm",
+    "D#m",
+    "Em",
+    "Fm",
+    "F#m",
+    "Gm",
+    "G#m",
+    "Am",
+    "Bbm",
+    "Bm",
 ]
 
 DEFAULT_BPM = 120

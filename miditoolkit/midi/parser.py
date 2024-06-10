@@ -503,7 +503,11 @@ class MidiFile:
         key_list = []
         for ks in self.key_signature_changes:
             key_list.append(
-                mido.MetaMessage("key_signature", time=ks.time, key=KEY_NUMBER_TO_MIDO_KEY_NAME[ks.key_number])
+                mido.MetaMessage(
+                    "key_signature",
+                    time=ks.time,
+                    key=KEY_NUMBER_TO_MIDO_KEY_NAME[ks.key_number],
+                )
             )
 
         # crop segment
