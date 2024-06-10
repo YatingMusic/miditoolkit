@@ -15,7 +15,7 @@ def test_load_dump(midi_path, tmp_path, disable_mido_checks, disable_mido_merge_
     midi2 = MidiFile(dump_path)  # Loading it back
 
     # Sorting the notes, as after dump the order might have changed
-    for track1, track2 in zip(midi1.instruments, midi2.instruments):
+    for track1, track2 in zip(midi1.instruments, midi2.instruments, strict=False):
         track1.notes.sort(key=lambda x: (x.start, x.pitch, x.end, x.velocity))
         track2.notes.sort(key=lambda x: (x.start, x.pitch, x.end, x.velocity))
 

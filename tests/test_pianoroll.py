@@ -57,7 +57,7 @@ def test_pianoroll(midi_path, test_set, disable_mido_checks, disable_mido_merge_
         assert len(new_notes) == len(
             new_new_notes
         ), "Number of notes changed in pianoroll conversion"
-        for note1, note2 in zip(new_notes, new_new_notes):
+        for note1, note2 in zip(new_notes, new_new_notes, strict=False):
             # We don't test the resampling factor as it might later the number of notes
             assert (
                 note1 == note2

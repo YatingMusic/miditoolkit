@@ -1,4 +1,4 @@
-from typing import Optional, Tuple, Union
+from __future__ import annotations
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -34,20 +34,20 @@ OFFSET_OCTAVE = -1
 # -------------------------------------------- #
 def plot(
     pianoroll: np.ndarray,
-    note_range: Tuple[int, int] = (0, 128),
+    note_range: tuple[int, int] = (0, 128),
     beat_resolution: int = 24,
-    downbeats: Union[int, np.ndarray] = 4,
+    downbeats: int | np.ndarray = 4,
     background_layout: str = "pianoroll",
     grid_layout: str = "x",
     xtick: str = "downbeat",
     ytick: str = "number",
     ytick_interval: int = 12,
     xtick_interval: int = 1,
-    x_range: Optional[Tuple[int, int]] = None,
-    y_range: Optional[Tuple[int, int]] = None,
-    figsize: Optional[Tuple[int, int]] = None,
+    x_range: tuple[int, int] | None = None,
+    y_range: tuple[int, int] | None = None,
+    figsize: tuple[int, int] | None = None,
     dpi: int = 300,
-) -> Tuple[plt.Figure, plt.Axes]:
+) -> tuple[plt.Figure, plt.Axes]:
     """Plot Pianoroll
     Parameters
     ----------
@@ -133,14 +133,14 @@ def plot(
 def plot_chroma(
     chroma: np.ndarray,
     beat_resolution: int = 24,
-    downbeats: Union[int, np.ndarray] = 4,
+    downbeats: int | np.ndarray = 4,
     xtick: str = "downbeat",
     ytick: str = "note",
-    x_range: Optional[Tuple[int, int]] = None,
+    x_range: tuple[int, int] | None = None,
     xtick_interval: int = 1,
-    figsize: Optional[Tuple[int, int]] = None,
+    figsize: tuple[int, int] | None = None,
     dpi: int = 300,
-) -> Tuple[plt.Figure, plt.Axes]:
+) -> tuple[plt.Figure, plt.Axes]:
     """Plot Chromagram
     Parameters
     ----------
@@ -217,11 +217,11 @@ def plot_chroma(
 
 def plot_heatmap(
     to_plot: np.ndarray,
-    tick_interval: Optional[int] = None,
+    tick_interval: int | None = None,
     origin: str = "upper",
-    figsize: Optional[Tuple[int, int]] = None,
+    figsize: tuple[int, int] | None = None,
     dpi: int = 300,
-) -> Tuple[plt.Figure, plt.Axes]:
+) -> tuple[plt.Figure, plt.Axes]:
     """Plot Similarity Matrix
     Parameters
     ----------
@@ -282,7 +282,7 @@ def plot_grid(ax: plt.Axes, layout: str, which: str = "minor", color="k"):
     # always using 'minor' tick to plot grid
     # argumens check
     if layout not in ["x", "y", "both", None]:
-        raise ValueError("Unkown Grid layout: %s" % layout)
+        raise ValueError(f"Unkown Grid layout: {layout}")
 
     # grid Show
     if layout in ["x", "both"]:
@@ -332,7 +332,7 @@ def plot_xticks(
     xtick_interval: int,
     max_tick: int,
     beat_resolution: int,
-    downbeats: Optional[int] = None,
+    downbeats: int | None = None,
 ):
     # tick arrangement
     # - xtick, minor for beat
@@ -352,7 +352,7 @@ def plot_xticks(
             elif downbeats.dtype == bool:
                 xticks_downbeats = np.where(downbeats == True)  # noqa: E712
             else:
-                raise ValueError("Unkown downbeats type: %s" % downbeats)
+                raise ValueError(f"Unkown downbeats type: {downbeats}")
         ax.set_xticks(xticks_downbeats)
         ax.grid(
             axis="x", color="k", which="major", linestyle="-", linewidth=0.5, alpha=1.0
@@ -385,7 +385,7 @@ def plot_xticks(
         ax.tick_params(axis="x", which="minor", width=0)
         ax.tick_params(axis="x", which="major", width=0)
     else:
-        raise ValueError("Unkown xtick type: %s" % xtick)
+        raise ValueError(f"Unkown xtick type: {xtick}")
 
 
 def plot_background(ax: plt.Axes, layout: str, canvas):
@@ -409,7 +409,7 @@ def plot_background(ax: plt.Axes, layout: str, canvas):
     elif layout == "blank":
         pass
     else:
-        raise ValueError("Unkown background layout: %s" % layout)
+        raise ValueError(f"Unkown background layout: {layout}")
 
 
 def plot_note_entries(ax: plt.Axes, to_plot):

@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import collections
 import functools
+from collections.abc import Sequence
 from pathlib import Path
-from typing import List, Optional, Sequence, Tuple, Union
 
 import mido
 import numpy as np
@@ -30,7 +32,7 @@ mido.messages.checks._CHECKS["end"] = mido.messages.checks.check_time
 class MidiFile:
     def __init__(
         self,
-        filename: Optional[Union[Path, str]] = None,
+        filename: Path | str | None = None,
         file=None,
         ticks_per_beat: int = 480,
         clip: bool = False,
@@ -39,12 +41,12 @@ class MidiFile:
         # create empty file
         self.ticks_per_beat: int = ticks_per_beat
         self.max_tick: int = 0
-        self.tempo_changes: List[TempoChange] = []
-        self.time_signature_changes: List[TimeSignature] = []
-        self.key_signature_changes: List[KeySignature] = []
-        self.lyrics: List[Lyric] = []
-        self.markers: List[Marker] = []
-        self.instruments: List[Instrument] = []
+        self.tempo_changes: list[TempoChange] = []
+        self.time_signature_changes: list[TimeSignature] = []
+        self.key_signature_changes: list[KeySignature] = []
+        self.lyrics: list[Lyric] = []
+        self.markers: list[Marker] = []
+        self.instruments: list[Instrument] = []
 
         # load file
         if filename or file:
@@ -96,7 +98,7 @@ class MidiFile:
                 tick = event.time
 
     @staticmethod
-    def _load_tempo_changes(mido_obj: mido.MidiFile) -> List[TempoChange]:
+    def _load_tempo_changes(mido_obj: mido.MidiFile) -> list[TempoChange]:
         # default bpm
         tempo_changes = [TempoChange(DEFAULT_BPM, 0)]
 
@@ -116,7 +118,7 @@ class MidiFile:
         return tempo_changes
 
     @staticmethod
-    def _load_time_signatures(mido_obj: mido.MidiFile) -> List[TimeSignature]:
+    def _load_time_signatures(mido_obj: mido.MidiFile) -> list[TimeSignature]:
         # no default
         time_signature_changes = []
 
@@ -131,7 +133,7 @@ class MidiFile:
         return time_signature_changes
 
     @staticmethod
-    def _load_key_signatures(mido_obj: mido.MidiFile) -> List[KeySignature]:
+    def _load_key_signatures(mido_obj: mido.MidiFile) -> list[KeySignature]:
         # no default
         key_signature_changes = []
 
@@ -144,7 +146,7 @@ class MidiFile:
         return key_signature_changes
 
     @staticmethod
-    def _load_markers(mido_obj: mido.MidiFile) -> List[Marker]:
+    def _load_markers(mido_obj: mido.MidiFile) -> list[Marker]:
         # no default
         markers = []
 
@@ -156,7 +158,7 @@ class MidiFile:
         return markers
 
     @staticmethod
-    def _load_lyrics(mido_obj: mido.MidiFile) -> List[Lyric]:
+    def _load_lyrics(mido_obj: mido.MidiFile) -> list[Lyric]:
         # no default
         lyrics = []
 
@@ -168,7 +170,7 @@ class MidiFile:
         return lyrics
 
     @staticmethod
-    def _load_instruments(midi_data: mido.MidiFile) -> List[Instrument]:
+    def _load_instruments(midi_data: mido.MidiFile) -> list[Instrument]:
         instrument_map = collections.OrderedDict()
         # Store a similar mapping to instruments storing "straggler events",
         # e.g. events which appear before we want to initialize an Instrument
@@ -377,7 +379,9 @@ class MidiFile:
                 return False
             if any(
                 a1 != a2
-                for a1, a2 in zip(getattr(self, list_attr), getattr(other, list_attr))
+                for a1, a2 in zip(
+                    getattr(self, list_attr), getattr(other, list_attr), strict=False
+                )
             ):
                 return False
 
@@ -386,11 +390,11 @@ class MidiFile:
 
     def dump(
         self,
-        filename: Optional[Union[str, Path]] = None,
+        filename: str | Path | None = None,
         file=None,
-        segment: Optional[Tuple[int, int]] = None,
+        segment: tuple[int, int] | None = None,
         shift: bool = True,
-        instrument_idx: Optional[int] = None,
+        instrument_idx: int | None = None,
         charset: str = "latin1",
     ):
         # comparison function
@@ -704,7 +708,7 @@ def _is_note_within_tick_range(
 
 
 def _include_meta_events_within_tick_range(
-    events: Sequence[Union[mido.MetaMessage, mido.Message]],
+    events: Sequence[mido.MetaMessage | mido.Message],
     start_tick: int,
     end_tick: int,
     shift: bool = False,
@@ -757,7 +761,7 @@ def _include_meta_events_within_tick_range(
     return proc_events
 
 
-def _get_tick_eq_of_second(sec: Union[float, int], tick_to_time: np.ndarray) -> int:
+def _get_tick_eq_of_second(sec: float | int, tick_to_time: np.ndarray) -> int:
     return int((np.abs(tick_to_time - sec)).argmin())
 
 
