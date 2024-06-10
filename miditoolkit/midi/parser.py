@@ -8,7 +8,7 @@ from pathlib import Path
 import mido
 import numpy as np
 
-from ..constants import DEFAULT_BPM
+from ..constants import DEFAULT_BPM, KEY_NUMBER_TO_MIDO_KEY_NAME
 from .containers import (
     ControlChange,
     Instrument,
@@ -503,7 +503,7 @@ class MidiFile:
         key_list = []
         for ks in self.key_signature_changes:
             key_list.append(
-                mido.MetaMessage("key_signature", time=ks.time, key=ks.key_name)
+                mido.MetaMessage("key_signature", time=ks.time, key=KEY_NUMBER_TO_MIDO_KEY_NAME[ks.key_number])
             )
 
         # crop segment
