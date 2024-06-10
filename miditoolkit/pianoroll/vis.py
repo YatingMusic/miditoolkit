@@ -282,7 +282,7 @@ def plot_grid(ax: plt.Axes, layout: str, which: str = "minor", color="k"):
     # always using 'minor' tick to plot grid
     # argumens check
     if layout not in ["x", "y", "both", None]:
-        raise ValueError("Unkown Grid layout: %s" % layout)
+        raise ValueError(f"Unkown Grid layout: {layout}")
 
     # grid Show
     if layout in ["x", "both"]:
@@ -352,7 +352,7 @@ def plot_xticks(
             elif downbeats.dtype == bool:
                 xticks_downbeats = np.where(downbeats == True)  # noqa: E712
             else:
-                raise ValueError("Unkown downbeats type: %s" % downbeats)
+                raise ValueError(f"Unkown downbeats type: {downbeats}")
         ax.set_xticks(xticks_downbeats)
         ax.grid(
             axis="x", color="k", which="major", linestyle="-", linewidth=0.5, alpha=1.0
@@ -385,7 +385,7 @@ def plot_xticks(
         ax.tick_params(axis="x", which="minor", width=0)
         ax.tick_params(axis="x", which="major", width=0)
     else:
-        raise ValueError("Unkown xtick type: %s" % xtick)
+        raise ValueError(f"Unkown xtick type: {xtick}")
 
 
 def plot_background(ax: plt.Axes, layout: str, canvas):
@@ -409,7 +409,7 @@ def plot_background(ax: plt.Axes, layout: str, canvas):
     elif layout == "blank":
         pass
     else:
-        raise ValueError("Unkown background layout: %s" % layout)
+        raise ValueError(f"Unkown background layout: {layout}")
 
 
 def plot_note_entries(ax: plt.Axes, to_plot):
